@@ -1,6 +1,7 @@
 package com.nurdoidz.mites;
 
 import com.mojang.logging.LogUtils;
+import com.nurdoidz.mites.init.EntityInit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -55,6 +56,7 @@ public class Mites
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+        EntityInit.ENTITY_TYPES.register(modEventBus);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
