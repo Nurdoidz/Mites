@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Mites.MODID, "textures/entities/mite.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Mites.MODID,
+        "textures/entities/mite.png");
 
     public MiteRenderer(
         Context context) {

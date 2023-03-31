@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 
 @Mod.EventBusSubscriber(modid = Mites.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
+
     @SubscribeEvent
     public static void entityRenderers(RegisterRenderers event) {
         event.registerEntityRenderer(EntityInit.MITE.get(), MiteRenderer::new);
