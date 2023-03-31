@@ -57,6 +57,7 @@ public class Mites
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         EntityInit.ENTITY_TYPES.register(modEventBus);
+        ItemInit.ITEMS.register(modEventBus);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
