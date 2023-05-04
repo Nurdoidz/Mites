@@ -8,6 +8,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -44,7 +45,8 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public static AttributeSupplier.Builder getMiteAttributes() {
-        return Mob.createMobAttributes();
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0D)
+            .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
 
     @Nullable
