@@ -4,9 +4,11 @@ import com.nurdoidz.mites.init.EntityInit;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -31,6 +33,11 @@ public class Mite extends Animal implements NeutralMob {
     public Mite(EntityType<? extends Mite> type,
         Level level) {
         super(type, level);
+    }
+
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return this.isBaby() ? 0.13F/2 : 0.13F;
     }
 
     @Override

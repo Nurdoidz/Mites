@@ -15,5 +15,5 @@ public class EntityInit {
 
     public static final RegistryObject<EntityType<Mite>> MITE = ENTITY_TYPES.register("mite",
         () -> EntityType.Builder.of(Mite::new,
-            MobCategory.CREATURE).build(Mites.MODID + ":mite"));
+            MobCategory.CREATURE).sized(0.4F, 0.3F).build(Mites.MODID + ":mite"));
 }
