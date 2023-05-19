@@ -1,5 +1,6 @@
 package com.nurdoidz.mites.client.renderer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.nurdoidz.mites.Mites;
 import com.nurdoidz.mites.client.models.MiteModel;
 import com.nurdoidz.mites.entities.Mite;
@@ -21,5 +22,14 @@ public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
     @Override
     public @NotNull ResourceLocation getTextureLocation(Mite p_114482_) {
         return TEXTURE;
+    }
+
+    @Override
+    protected void scale(Mite mite, PoseStack poseStack, float f) {
+        if (mite.isBaby()) {
+            poseStack.scale(0.5F, 0.5F, 0.5F);
+        } else {
+            poseStack.scale(1.0F, 1.0F, 1.0F);
+        }
     }
 }
