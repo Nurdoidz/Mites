@@ -79,8 +79,8 @@ public class Mite extends Animal implements NeutralMob {
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel p_146743_, AgeableMob p_146744_) {
-        return EntityInit.MITE.get().create(p_146743_);
+    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+        return EntityInit.MITE.get().create(level);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    public void setRemainingPersistentAngerTime(int p_21673_) {
+    public void setRemainingPersistentAngerTime(int time) {
 
     }
 
@@ -105,7 +105,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    public void setPersistentAngerTarget(@Nullable UUID p_21672_) {
+    public void setPersistentAngerTarget(@Nullable UUID target) {
 
     }
 

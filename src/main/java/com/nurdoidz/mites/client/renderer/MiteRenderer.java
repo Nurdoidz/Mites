@@ -20,7 +20,7 @@ public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(Mite p_114482_) {
+    public @NotNull ResourceLocation getTextureLocation(Mite mite) {
         return TEXTURE;
     }
 
