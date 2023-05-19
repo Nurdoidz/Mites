@@ -3,6 +3,9 @@ package com.nurdoidz.mites.entities;
 import com.nurdoidz.mites.init.EntityInit;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -33,6 +36,24 @@ public class Mite extends Animal implements NeutralMob {
     public Mite(EntityType<? extends Mite> type,
         Level level) {
         super(type, level);
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.SILVERFISH_AMBIENT;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return SoundEvents.SILVERFISH_HURT;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.SILVERFISH_DEATH;
     }
 
     @Override
