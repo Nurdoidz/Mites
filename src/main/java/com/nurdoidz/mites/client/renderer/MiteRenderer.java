@@ -16,7 +16,7 @@ public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
 
     public MiteRenderer(
         Context context) {
-        super(context, new MiteModel(context.bakeLayer(MiteModel.LAYER_LOCATION)), 0.5f);
+        super(context, new MiteModel(context.bakeLayer(MiteModel.LAYER_LOCATION)), 0.3f);
     }
 
     @Override
