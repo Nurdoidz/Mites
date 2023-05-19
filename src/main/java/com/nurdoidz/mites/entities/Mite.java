@@ -5,6 +5,8 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityDimensions;
@@ -27,11 +29,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class Mite extends Animal implements NeutralMob {
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.HONEY_BOTTLE);
+    private static final Ingredient ENTHRALL_ITEMS = Ingredient.of(
+        Items.COBBLESTONE,
+        Items.FLINT,
+        Items.DIRT,
+        Items.OAK_LOG,
+        Items.BONE_MEAL,
+        Items.CLAY_BALL,
+        Items.CACTUS,
+        Items.ICE);
 
     public Mite(EntityType<? extends Mite> type,
         Level level) {
@@ -86,6 +98,44 @@ public class Mite extends Animal implements NeutralMob {
     @Override
     public boolean isFood(ItemStack stack) {
         return FOOD_ITEMS.test(stack);
+    }
+
+    public boolean isEnthrall(ItemStack stack) {
+        return ENTHRALL_ITEMS.test(stack);
+    }
+
+    @Override
+    public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
+        if (this.isFood(itemstack)) {
+            int i = this.getAge();
+            if (!this.level.isClientSide && i == 0 && this.canFallInLove()) {
+                this.usePlayerItem(player, hand, itemstack);
+                this.setInLove(player);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (this.isBaby()) {
+                this.usePlayerItem(player, hand, itemstack);
+                this.ageUp(getSpeedUpSecondsWhenFeeding(-i), true);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
+            if (this.level.isClientSide) {
+                return InteractionResult.CONSUME;
+            }
+        } else if (this.isEnthrall(itemstack)) {
+            if (!this.level.isClientSide && !this.isBaby()) {
+                this.usePlayerItem(player, hand, itemstack);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (this.level.isClientSide) {
+                return InteractionResult.CONSUME;
+            }
+        }
+
+        return super.mobInteract(player, hand);
     }
 
     @Override
