@@ -70,7 +70,7 @@ public class Mite extends Animal implements NeutralMob {
 
     @Override
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return this.isBaby() ? 0.13F/2 : 0.13F;
+        return this.isBaby() ? 0.13F / 2 : 0.13F;
     }
 
     @Override
