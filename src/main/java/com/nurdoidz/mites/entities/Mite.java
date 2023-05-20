@@ -2,9 +2,14 @@ package com.nurdoidz.mites.entities;
 
 import com.nurdoidz.mites.init.EntityInit;
 import java.util.UUID;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -12,6 +17,7 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -22,6 +28,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -44,10 +51,23 @@ public class Mite extends Animal implements NeutralMob {
         Items.CLAY_BALL,
         Items.CACTUS,
         Items.ICE);
+    private static final EntityDataAccessor<Integer> REMAINING_ANGER_TIME = SynchedEntityData.defineId(
+        Mite.class,
+        EntityDataSerializers.INT);
+    private UUID persistentAngerTarget;
+    private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
 
     public Mite(EntityType<? extends Mite> type,
         Level level) {
         super(type, level);
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (!this.level.isClientSide) {
+            this.updatePersistentAnger((ServerLevel) this.level, true);
+        }
     }
 
     @Nullable
@@ -77,15 +97,19 @@ public class Mite extends Animal implements NeutralMob {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level));
+        this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
         this.goalSelector.addGoal(3, new BreedGoal(this, 1.0D));
-        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0D, false));
         this.goalSelector.addGoal(4, new TemptGoal(this, 1.2D, FOOD_ITEMS, false));
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2,
+            new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false,
+                this::isAngryAt));
     }
 
     public static AttributeSupplier.Builder getMiteAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 8.0D)
+        return Mob.createMobAttributes().add(Attributes.FOLLOW_RANGE, 20.0D)
+            .add(Attributes.MAX_HEALTH, 8.0D)
             .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
 
@@ -140,27 +164,38 @@ public class Mite extends Animal implements NeutralMob {
 
     @Override
     public int getRemainingPersistentAngerTime() {
-        return 0;
+        return this.entityData.get(REMAINING_ANGER_TIME);
     }
 
     @Override
     public void setRemainingPersistentAngerTime(int time) {
-
+        this.entityData.set(REMAINING_ANGER_TIME, time);
     }
 
     @Nullable
     @Override
     public UUID getPersistentAngerTarget() {
-        return null;
+        return this.persistentAngerTarget;
     }
 
     @Override
     public void setPersistentAngerTarget(@Nullable UUID target) {
-
+        this.persistentAngerTarget = target;
     }
 
     @Override
     public void startPersistentAngerTimer() {
+        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
+    }
 
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(REMAINING_ANGER_TIME, 0);
+    }
+
+    @Override
+    public @NotNull MobType getMobType() {
+        return MobType.ARTHROPOD;
     }
 }
