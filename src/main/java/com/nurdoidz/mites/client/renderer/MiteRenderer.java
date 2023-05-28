@@ -3,7 +3,8 @@ package com.nurdoidz.mites.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.nurdoidz.mites.Mites;
 import com.nurdoidz.mites.client.models.MiteModel;
-import com.nurdoidz.mites.entities.Mite;
+import com.nurdoidz.mites.client.renderer.layers.MiteTailLayer;
+import com.nurdoidz.mites.entity.Mite;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -11,17 +12,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Mites.MODID,
-        "textures/entities/mite.png");
+    private static final ResourceLocation MITE_LOCATION = new ResourceLocation(Mites.MODID,
+        "textures/entity/mite/mite.png");
 
     public MiteRenderer(
         Context context) {
         super(context, new MiteModel(context.bakeLayer(MiteModel.LAYER_LOCATION)), 0.3f);
+        this.addLayer(new MiteTailLayer(this));
     }
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(Mite mite) {
-        return TEXTURE;
+        return MITE_LOCATION;
     }
 
     @Override

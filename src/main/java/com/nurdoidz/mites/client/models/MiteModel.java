@@ -1,7 +1,7 @@
 package com.nurdoidz.mites.client.models;
 
 import com.nurdoidz.mites.Mites;
-import com.nurdoidz.mites.entities.Mite;
+import com.nurdoidz.mites.entity.Mite;
 import net.minecraft.client.model.SilverfishModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;

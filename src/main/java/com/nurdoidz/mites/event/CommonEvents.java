@@ -1,7 +1,7 @@
-package com.nurdoidz.mites.events;
+package com.nurdoidz.mites.event;
 
 import com.nurdoidz.mites.Mites;
-import com.nurdoidz.mites.entities.Mite;
+import com.nurdoidz.mites.entity.Mite;
 import com.nurdoidz.mites.init.EntityInit;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

@@ -1,4 +1,4 @@
-package com.nurdoidz.mites.events;
+package com.nurdoidz.mites.event;
 
 import com.nurdoidz.mites.Mites;
 import com.nurdoidz.mites.client.models.MiteModel;

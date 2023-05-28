@@ -1,7 +1,8 @@
-package com.nurdoidz.mites.entities;
+package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.init.EntityInit;
 import java.util.UUID;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -32,6 +33,7 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -54,12 +56,22 @@ public class Mite extends Animal implements NeutralMob {
     private static final EntityDataAccessor<Integer> REMAINING_ANGER_TIME = SynchedEntityData.defineId(
         Mite.class,
         EntityDataSerializers.INT);
-    private UUID persistentAngerTarget;
+    private static final EntityDataAccessor<String> ENTHRALL = SynchedEntityData.defineId(Mite.class,
+        EntityDataSerializers.STRING);
+    private static final String NBT_ENTHRALL = "Enthrall";
     private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    private UUID persistentAngerTarget;
+    private Enthrall enthrall;
 
-    public Mite(EntityType<? extends Mite> type,
-        Level level) {
-        super(type, level);
+    public Mite(EntityType<? extends Mite> pType, Level pLevel) {
+        super(pType, pLevel);
+        setEnthrall(Enthrall.NONE);
+    }
+
+    public static AttributeSupplier.Builder getMiteAttributes() {
+        return Mob.createMobAttributes().add(Attributes.FOLLOW_RANGE, 20.0D)
+            .add(Attributes.MAX_HEALTH, 8.0D)
+            .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
 
     @Override
@@ -107,12 +119,6 @@ public class Mite extends Animal implements NeutralMob {
                 this::isAngryAt));
     }
 
-    public static AttributeSupplier.Builder getMiteAttributes() {
-        return Mob.createMobAttributes().add(Attributes.FOLLOW_RANGE, 20.0D)
-            .add(Attributes.MAX_HEALTH, 8.0D)
-            .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
-    }
-
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
@@ -126,6 +132,15 @@ public class Mite extends Animal implements NeutralMob {
 
     public boolean isEnthrall(ItemStack stack) {
         return ENTHRALL_ITEMS.test(stack);
+    }
+
+    public Enthrall getEnthrall() {
+        return this.enthrall;
+    }
+
+    public void setEnthrall(Enthrall pEnthrall) {
+        this.enthrall = pEnthrall;
+        this.entityData.set(ENTHRALL, pEnthrall.name);
     }
 
     @Override
@@ -191,11 +206,83 @@ public class Mite extends Animal implements NeutralMob {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(ENTHRALL, "plain");
         this.entityData.define(REMAINING_ANGER_TIME, 0);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
+        pCompound.putString(NBT_ENTHRALL, this.enthrall.name);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+        setEnthrall(Enthrall.fromName(pCompound.getString(NBT_ENTHRALL)));
     }
 
     @Override
     public @NotNull MobType getMobType() {
         return MobType.ARTHROPOD;
+    }
+
+    public enum Enthrall {
+        NONE("plain", Items.AIR, new float[]{0.1F, 0.1F, 0.1F}),
+        STONE("stone", Items.COBBLESTONE, new float[]{0.6F, 0.6F, 0.6F}),
+        FLINT("flint", Items.FLINT, new float[]{0.1F, 0.1F, 0.1F}),
+        DIRT("dirt", Items.DIRT, new float[]{0.55F, 0.39F, 0.27F}),
+        WOOD("wood", Items.OAK_LOG, new float[]{0.84F, 0.61F, 0.41F}),
+        BONE("bone", Items.BONE_MEAL, new float[]{1.0F, 0.949F, 0.78F}),
+        CLAY("clay", Items.CLAY_BALL, new float[]{0.612F, 0.639F, 0.678F}),
+        CACTUS("cactus", Items.CACTUS, new float[]{0.388F, 0.588F, 0.196F}),
+        ICE("ice", Items.ICE, new float[]{0.561F, 0.682F, 0.91F}),
+        GRAVEL("gravel", Items.GRAVEL, new float[]{0.408F, 0.376F, 0.369F}),
+        SUGAR("sugar", Items.SUGAR, new float[]{0.99F, 0.99F, 0.99F}),
+        SAND("sand", Items.SAND, new float[]{0.816F, 0.749F, 0.573F}),
+        REDSTONE("redstone", Items.REDSTONE, new float[]{0.996F, 0.0F, 0.0F}),
+        COAL("coal", Items.COAL, new float[]{0.0F, 0.0F, 0.0F}),
+        GUNPOWDER("gunpowder", Items.GUNPOWDER, new float[]{0.129F, 0.278F, 0.173F}),
+        SLIME("slime", Items.SLIME_BALL, new float[]{0.541F, 0.773F, 0.506F}),
+        GLASS("glass", Items.GLASS, new float[]{0.804F, 0.906F, 0.906F}),
+        STRING("string", Items.STRING, new float[]{0.988F, 0.71F, 1.0F}),
+        IRON("iron", Items.IRON_NUGGET, new float[]{0.71F, 0.247F, 0.051F}),
+        OBSIDIAN("obsidian", Items.OBSIDIAN, new float[]{0.314F, 0.204F, 0.455F}),
+        LAPIS("lapis", Items.LAPIS_LAZULI, new float[]{0.231F, 0.416F, 0.773F}),
+        QUARTZ("quartz", Items.QUARTZ, new float[]{0.969F, 0.737F, 0.816F}),
+        BLAZE("blaze", Items.BLAZE_POWDER, new float[]{0.882F, 0.49F, 0.106F}),
+        GOLD("gold", Items.GOLD_NUGGET, new float[]{0.89F, 0.796F, 0.196F}),
+        DIAMOND("diamond", Items.DIAMOND, new float[]{0.29F, 0.929F, 0.851F}),
+        EMERALD("emerald", Items.EMERALD, new float[]{0.0F, 0.714F, 0.525F});
+        private final Item item;
+        private final String name;
+        private final float[] color;
+
+        Enthrall(String pName, Item pEnthrall, float[] pColor) {
+            this.name = pName;
+            this.item = pEnthrall;
+            this.color = pColor;
+        }
+
+        public static Enthrall fromName(String pName) {
+            for (Enthrall enthrall : Enthrall.values()) {
+                if (enthrall.name.equals(pName)) {
+                    return enthrall;
+                }
+            }
+            return Enthrall.NONE;
+        }
+
+        public Item getItem() {
+            return this.item;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public float[] getColor() {
+            return this.color;
+        }
     }
 }
