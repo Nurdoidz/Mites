@@ -1,6 +1,8 @@
 package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.init.EntityInit;
+import com.nurdoidz.mites.util.Formulas;
+import java.util.Random;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -56,16 +58,19 @@ public class Mite extends Animal implements NeutralMob {
     private static final EntityDataAccessor<Integer> DIGEST_TIME = SynchedEntityData.defineId(Mite.class,
         EntityDataSerializers.INT);
     private static final String NBT_ENTHRALL = "Enthrall";
-    private static final String NBT_DIGEST_TIME = "DigestTime";
+    private static final String NBT_DIGEST_TIME_LEFT = "DigestTimeLeft";
+    private static final String NBT_APPETITE = "Appetite";
     private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
     private UUID persistentAngerTarget;
     private Enthrall enthrall;
-    private int digestTime = 100;
+    private int digestTimeLeft = 100;
     private boolean isDigesting = false;
+    private int appetite;
 
     public Mite(EntityType<? extends Mite> pType, Level pLevel) {
         super(pType, pLevel);
         setEnthrall(Enthrall.NONE);
+        this.appetite = new Random().nextInt(32);
     }
 
     public static AttributeSupplier.Builder getMiteAttributes() {
@@ -87,12 +92,12 @@ public class Mite extends Animal implements NeutralMob {
                 }
                 this.isDigesting = true;
             }
-            if (--this.digestTime <= 0 && this.isDigesting) {
+            if (--this.digestTimeLeft <= 0 && this.isDigesting) {
                 this.playSound(SoundEvents.CHICKEN_EGG, 1.0F,
                     (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 this.spawnAtLocation(this.enthrall.item);
                 this.gameEvent(GameEvent.ENTITY_PLACE);
-                this.digestTime = this.enthrall.baseDigestTime;
+                this.digestTimeLeft = this.getFinalDigestTime();
                 this.isDigesting = false;
             }
         }
@@ -157,6 +162,10 @@ public class Mite extends Animal implements NeutralMob {
         this.enthrall = pEnthrall;
         this.entityData.set(ENTHRALL, pEnthrall.name);
         this.entityData.set(DIGEST_TIME, pEnthrall.baseDigestTime);
+    }
+
+    private int getFinalDigestTime() {
+        return Formulas.getFinalDigestTime(this.enthrall.baseDigestTime, this.appetite);
     }
 
     @Override
@@ -231,13 +240,15 @@ public class Mite extends Animal implements NeutralMob {
     public void addAdditionalSaveData(CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         pCompound.putString(NBT_ENTHRALL, this.enthrall.name);
-        pCompound.putInt(NBT_DIGEST_TIME, this.digestTime);
+        pCompound.putInt(NBT_DIGEST_TIME_LEFT, this.digestTimeLeft);
+        pCompound.putInt(NBT_APPETITE, this.appetite);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         setEnthrall(Enthrall.fromName(pCompound.getString(NBT_ENTHRALL)));
+        this.appetite = pCompound.getInt(NBT_APPETITE);
     }
 
     @Override
@@ -246,7 +257,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public enum Enthrall {
-        NONE("plain", Items.AIR, new float[]{0.1F, 0.1F, 0.1F}, 100),
+        NONE("plain", Items.PAPER, new float[]{0.1F, 0.1F, 0.1F}, 100),
         STONE("stone", Items.COBBLESTONE, new float[]{0.6F, 0.6F, 0.6F}, 100),
         FLINT("flint", Items.FLINT, new float[]{0.1F, 0.1F, 0.1F}, 400),
         DIRT("dirt", Items.DIRT, new float[]{0.55F, 0.39F, 0.27F}, 300),
