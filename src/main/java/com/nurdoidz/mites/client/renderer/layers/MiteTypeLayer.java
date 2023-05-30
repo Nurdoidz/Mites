@@ -9,12 +9,11 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
 
-public class MiteTailLayer extends RenderLayer<Mite, MiteModel> {
+public class MiteTypeLayer extends RenderLayer<Mite, MiteModel> {
 
-    private static final ResourceLocation MITE_TAIL_LOCATION = new ResourceLocation(Mites.MODID,
-        "textures/entity/mite/mite_tail.png");
+    private static final String MITE_LOCATION = "textures/entity/mite/type/";
 
-    public MiteTailLayer(RenderLayerParent<Mite, MiteModel> pRenderer) {
+    public MiteTypeLayer(RenderLayerParent<Mite, MiteModel> pRenderer) {
         super(pRenderer);
     }
 
@@ -24,11 +23,11 @@ public class MiteTailLayer extends RenderLayer<Mite, MiteModel> {
         float pHeadPitch) {
         if (!pLivingEntity.isInvisible()) {
             Mite.Enthrall miteEnthrall = pLivingEntity.getEnthrall();
-            if (miteEnthrall != Mite.Enthrall.NONE) {
-                float[] color = pLivingEntity.getEnthrall().getColor();
-                renderColoredCutoutModel(this.getParentModel(), MITE_TAIL_LOCATION, pPoseStack, pBuffer, pPackedLight,
-                    pLivingEntity, color[0], color[1], color[2]);
-            }
+//            if (miteEnthrall != Mite.Enthrall.NONE) {
+                renderColoredCutoutModel(this.getParentModel(),
+                    new ResourceLocation(Mites.MODID, MITE_LOCATION + miteEnthrall.getName() + ".png"), pPoseStack,
+                    pBuffer, pPackedLight, pLivingEntity, 1.0F, 1.0F, 1.0F);
+//            }
         }
     }
 }

@@ -3,7 +3,7 @@ package com.nurdoidz.mites.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.nurdoidz.mites.Mites;
 import com.nurdoidz.mites.client.models.MiteModel;
-import com.nurdoidz.mites.client.renderer.layers.MiteTailLayer;
+import com.nurdoidz.mites.client.renderer.layers.MiteTypeLayer;
 import com.nurdoidz.mites.entity.Mite;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -18,7 +18,7 @@ public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
     public MiteRenderer(
         Context context) {
         super(context, new MiteModel(context.bakeLayer(MiteModel.LAYER_LOCATION)), 0.3f);
-        this.addLayer(new MiteTailLayer(this));
+        this.addLayer(new MiteTypeLayer(this));
     }
 
     @Override
