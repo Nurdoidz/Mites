@@ -2,8 +2,15 @@ package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.init.EntityInit;
 import com.nurdoidz.mites.util.Formulas;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -161,8 +168,28 @@ public class Mite extends Animal implements NeutralMob {
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
-        return EntityInit.MITE.get().create(level);
+    public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
+        Mite otherParent = (Mite) pOtherParent;
+        Mite child = EntityInit.MITE.get().create(pLevel);
+        child.setEnthrall(this.getOffspringEnthrall(this, otherParent));
+        return child;
+    }
+
+    private Enthrall getOffspringEnthrall(Mite pFather, Mite pMother) {
+        Map<Enthrall, Double> enthralls = new HashMap<>();
+        enthralls.put(pFather.enthrall, 0.);
+        enthralls.put(pMother.enthrall, 0.);
+        for (Enthrall enthrall : Enthrall.values()) {
+            if (enthrall.parents.contains(pFather.enthrall) && enthrall.parents.contains(pMother.enthrall)) {
+                enthralls.put(enthrall, 0.);
+            }
+        }
+        Random die = new Random();
+        for (Enthrall enthrall : enthralls.keySet()) {
+            int roll = die.nextInt(101);
+            enthralls.replace(enthrall, (double) roll / (double) enthrall.conversion);
+        }
+        return Collections.max(enthralls.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
     @Override
@@ -282,42 +309,64 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public enum Enthrall {
-        NONE("plain", Items.PAPER, new float[]{0.1F, 0.1F, 0.1F}, 100),
-        STONE("stone", Items.COBBLESTONE, new float[]{0.6F, 0.6F, 0.6F}, 100),
-        FLINT("flint", Items.FLINT, new float[]{0.1F, 0.1F, 0.1F}, 400),
-        DIRT("dirt", Items.DIRT, new float[]{0.55F, 0.39F, 0.27F}, 300),
-        WOOD("wood", Items.OAK_LOG, new float[]{0.84F, 0.61F, 0.41F}, 300),
-        BONE("bone", Items.BONE_MEAL, new float[]{1.0F, 0.949F, 0.78F}, 500),
-        CLAY("clay", Items.CLAY_BALL, new float[]{0.612F, 0.639F, 0.678F}, 200),
-        CACTUS("cactus", Items.CACTUS, new float[]{0.388F, 0.588F, 0.196F}, 600),
-        ICE("ice", Items.ICE, new float[]{0.561F, 0.682F, 0.91F}, 700),
-        GRAVEL("gravel", Items.GRAVEL, new float[]{0.408F, 0.376F, 0.369F}, 400),
-        SUGAR("sugar", Items.SUGAR, new float[]{0.99F, 0.99F, 0.99F}, 600),
-        SAND("sand", Items.SAND, new float[]{0.816F, 0.749F, 0.573F}, 500),
-        REDSTONE("redstone", Items.REDSTONE, new float[]{0.996F, 0.0F, 0.0F}, 600),
-        COAL("coal", Items.COAL, new float[]{0.0F, 0.0F, 0.0F}, 600),
-        GUNPOWDER("gunpowder", Items.GUNPOWDER, new float[]{0.129F, 0.278F, 0.173F}, 700),
-        SLIME("slime", Items.SLIME_BALL, new float[]{0.541F, 0.773F, 0.506F}, 800),
-        GLASS("glass", Items.GLASS, new float[]{0.804F, 0.906F, 0.906F}, 800),
-        STRING("string", Items.STRING, new float[]{0.988F, 0.71F, 1.0F}, 800),
-        IRON("iron", Items.IRON_NUGGET, new float[]{0.71F, 0.247F, 0.051F}, 900),
-        OBSIDIAN("obsidian", Items.OBSIDIAN, new float[]{0.314F, 0.204F, 0.455F}, 1200),
-        LAPIS("lapis", Items.LAPIS_LAZULI, new float[]{0.231F, 0.416F, 0.773F}, 1000),
-        QUARTZ("quartz", Items.QUARTZ, new float[]{0.969F, 0.737F, 0.816F}, 1000),
-        BLAZE("blaze", Items.BLAZE_POWDER, new float[]{0.882F, 0.49F, 0.106F}, 1600),
-        GOLD("gold", Items.GOLD_NUGGET, new float[]{0.89F, 0.796F, 0.196F}, 1800),
-        DIAMOND("diamond", Items.DIAMOND, new float[]{0.29F, 0.929F, 0.851F}, 2400),
-        EMERALD("emerald", Items.EMERALD, new float[]{0.0F, 0.714F, 0.525F}, 2400);
+        NONE("plain", Items.PAPER, new float[]{0.1F, 0.1F, 0.1F}, 100, 10, new HashSet<>()),
+        STONE("stone", Items.COBBLESTONE, new float[]{0.6F, 0.6F, 0.6F}, 100, 13, new HashSet<>()),
+        FLINT("flint", Items.FLINT, new float[]{0.1F, 0.1F, 0.1F}, 400, 15, new HashSet<>()),
+        DIRT("dirt", Items.DIRT, new float[]{0.55F, 0.39F, 0.27F}, 300, 14, new HashSet<>()),
+        WOOD("wood", Items.OAK_LOG, new float[]{0.84F, 0.61F, 0.41F}, 300, 15, new HashSet<>()),
+        BONE("bone", Items.BONE_MEAL, new float[]{1.0F, 0.949F, 0.78F}, 500, 15, new HashSet<>()),
+        CLAY("clay", Items.CLAY_BALL, new float[]{0.612F, 0.639F, 0.678F}, 200, 14, new HashSet<>()),
+        CACTUS("cactus", Items.CACTUS, new float[]{0.388F, 0.588F, 0.196F}, 600, 16, new HashSet<>()),
+        ICE("ice", Items.ICE, new float[]{0.561F, 0.682F, 0.91F}, 700, 16, new HashSet<>()),
+        GRAVEL("gravel", Items.GRAVEL, new float[]{0.408F, 0.376F, 0.369F}, 400, 15,
+            Stream.of(STONE, FLINT).collect(Collectors.toCollection(HashSet::new))),
+        SAND("sand", Items.SAND, new float[]{0.816F, 0.749F, 0.573F}, 500, 15,
+            Stream.of(GRAVEL, FLINT).collect(Collectors.toCollection(HashSet::new))),
+        COAL("coal", Items.COAL, new float[]{0.0F, 0.0F, 0.0F}, 600, 17,
+            Stream.of(WOOD, FLINT).collect(Collectors.toCollection(HashSet::new))),
+        REDSTONE("redstone", Items.REDSTONE, new float[]{0.996F, 0.0F, 0.0F}, 600, 17,
+            Stream.of(SAND, COAL).collect(Collectors.toCollection(HashSet::new))),
+        SUGAR("sugar", Items.SUGAR, new float[]{0.99F, 0.99F, 0.99F}, 600, 16,
+            Stream.of(REDSTONE, BONE).collect(Collectors.toCollection(HashSet::new))),
+        GUNPOWDER("gunpowder", Items.GUNPOWDER, new float[]{0.129F, 0.278F, 0.173F}, 700, 17,
+            Stream.of(REDSTONE, SUGAR).collect(Collectors.toCollection(HashSet::new))),
+        SLIME("slime", Items.SLIME_BALL, new float[]{0.541F, 0.773F, 0.506F}, 800, 17,
+            Stream.of(CACTUS, SUGAR).collect(Collectors.toCollection(HashSet::new))),
+        STRING("string", Items.STRING, new float[]{0.988F, 0.71F, 1.0F}, 800, 16,
+            Stream.of(SUGAR, FLINT).collect(Collectors.toCollection(HashSet::new))),
+        IRON("iron", Items.IRON_NUGGET, new float[]{0.71F, 0.247F, 0.051F}, 900, 18,
+            Stream.of(GUNPOWDER, BONE).collect(Collectors.toCollection(HashSet::new))),
+        LAPIS("lapis", Items.LAPIS_LAZULI, new float[]{0.231F, 0.416F, 0.773F}, 1000, 19,
+            Stream.of(ICE, REDSTONE).collect(Collectors.toCollection(HashSet::new))),
+        QUARTZ("quartz", Items.QUARTZ, new float[]{0.969F, 0.737F, 0.816F}, 1000, 19,
+            Stream.of(LAPIS, BONE).collect(Collectors.toCollection(HashSet::new))),
+        BLAZE("blaze", Items.BLAZE_POWDER, new float[]{0.882F, 0.49F, 0.106F}, 1600, 20,
+            Stream.of(GUNPOWDER, FLINT).collect(Collectors.toCollection(HashSet::new))),
+        OBSIDIAN("obsidian", Items.OBSIDIAN, new float[]{0.314F, 0.204F, 0.455F}, 1200, 19,
+            Stream.of(ICE, BLAZE).collect(Collectors.toCollection(HashSet::new))),
+        GLASS("glass", Items.GLASS, new float[]{0.804F, 0.906F, 0.906F}, 800, 17,
+            Stream.of(SAND, BLAZE).collect(Collectors.toCollection(HashSet::new))),
+        GOLD("gold", Items.GOLD_NUGGET, new float[]{0.89F, 0.796F, 0.196F}, 1800, 20,
+            Stream.of(IRON, BLAZE).collect(Collectors.toCollection(HashSet::new))),
+        DIAMOND("diamond", Items.DIAMOND, new float[]{0.29F, 0.929F, 0.851F}, 2400, 22,
+            Stream.of(COAL, BLAZE).collect(Collectors.toCollection(HashSet::new))),
+        EMERALD("emerald", Items.EMERALD, new float[]{0.0F, 0.714F, 0.525F}, 2400, 22,
+            Stream.of(DIAMOND, SLIME).collect(Collectors.toCollection(HashSet::new)));
         private final Item item;
         private final String name;
         private final float[] color;
         private final int baseDigestTime;
+        private final int conversion;
+        private final Set<Enthrall> parents;
 
-        Enthrall(String pName, Item pEnthrall, float[] pColor, int pBaseDigestTime) {
+        Enthrall(String pName, Item pEnthrallItem, float[] pColor, int pBaseDigestTime, int pConversion,
+            Set<Enthrall> pParents) {
             this.name = pName;
-            this.item = pEnthrall;
+            this.item = pEnthrallItem;
             this.color = pColor;
             this.baseDigestTime = pBaseDigestTime;
+            this.conversion = pConversion;
+            this.parents = pParents;
         }
 
         public static Enthrall fromName(String pName) {
@@ -343,6 +392,10 @@ public class Mite extends Animal implements NeutralMob {
 
         public float[] getColor() {
             return this.color;
+        }
+
+        public int getConversion() {
+            return this.conversion;
         }
     }
 }
