@@ -57,20 +57,27 @@ public class Mite extends Animal implements NeutralMob {
         EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> DIGEST_TIME = SynchedEntityData.defineId(Mite.class,
         EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> APPETITE = SynchedEntityData.defineId(Mite.class,
+        EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GREED = SynchedEntityData.defineId(Mite.class,
+        EntityDataSerializers.INT);
     private static final String NBT_ENTHRALL = "Enthrall";
     private static final String NBT_DIGEST_TIME_LEFT = "DigestTimeLeft";
     private static final String NBT_APPETITE = "Appetite";
+    private static final String NBT_GREED = "Greed";
     private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
     private UUID persistentAngerTarget;
     private Enthrall enthrall;
     private int digestTimeLeft = 100;
     private boolean isDigesting = false;
     private int appetite;
+    private int greed;
 
     public Mite(EntityType<? extends Mite> pType, Level pLevel) {
         super(pType, pLevel);
         setEnthrall(Enthrall.NONE);
         this.appetite = new Random().nextInt(32);
+        this.greed = new Random().nextInt(32);
     }
 
     public static AttributeSupplier.Builder getMiteAttributes() {
@@ -93,9 +100,22 @@ public class Mite extends Animal implements NeutralMob {
                 this.isDigesting = true;
             }
             if (--this.digestTimeLeft <= 0 && this.isDigesting) {
-                this.playSound(SoundEvents.CHICKEN_EGG, 1.0F,
-                    (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-                this.spawnAtLocation(this.enthrall.item);
+                double chance = Formulas.getRollPercentage(this.greed);
+                Random random = new Random();
+                int count = 0;
+                for (int i = 0; i < 4; i++) {
+                    double roll = random.nextDouble();
+                    if (roll <= chance) {
+                        count++;
+                    }
+                }
+                ItemStack stack = new ItemStack(this.enthrall.item);
+                stack.setCount(count);
+                this.spawnAtLocation(stack);
+                if (count > 0) {
+                    this.playSound(SoundEvents.CHICKEN_EGG, 1.0F,
+                        (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                }
                 this.gameEvent(GameEvent.ENTITY_PLACE);
                 this.digestTimeLeft = this.getFinalDigestTime();
                 this.isDigesting = false;
@@ -233,6 +253,8 @@ public class Mite extends Animal implements NeutralMob {
         super.defineSynchedData();
         this.entityData.define(ENTHRALL, "plain");
         this.entityData.define(DIGEST_TIME, 100);
+        this.entityData.define(APPETITE, 0);
+        this.entityData.define(GREED, 0);
         this.entityData.define(REMAINING_ANGER_TIME, 0);
     }
 
@@ -242,13 +264,16 @@ public class Mite extends Animal implements NeutralMob {
         pCompound.putString(NBT_ENTHRALL, this.enthrall.name);
         pCompound.putInt(NBT_DIGEST_TIME_LEFT, this.digestTimeLeft);
         pCompound.putInt(NBT_APPETITE, this.appetite);
+        pCompound.putInt(NBT_GREED, this.greed);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         setEnthrall(Enthrall.fromName(pCompound.getString(NBT_ENTHRALL)));
+        this.digestTimeLeft = pCompound.getInt(NBT_DIGEST_TIME_LEFT);
         this.appetite = pCompound.getInt(NBT_APPETITE);
+        this.greed = pCompound.getInt(NBT_GREED);
     }
 
     @Override

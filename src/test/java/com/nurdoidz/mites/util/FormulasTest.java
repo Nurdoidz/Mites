@@ -24,4 +24,20 @@ public class FormulasTest {
         int finalDigestTime = Formulas.getFinalDigestTime(baseDigestTime, appetite);
         assertEquals(5, finalDigestTime, "Given baseDigestTime of 10");
     }
+
+    @DisplayName("0 greed returns 5 percent")
+    @Test
+    void withGreedOf0_returns20Percent() {
+        int greed = 0;
+        double percentage = Formulas.getRollPercentage(greed);
+        assertEquals(0.05F, percentage, 0.0001F);
+    }
+
+    @DisplayName("31 greed returns 20 percent")
+    @Test
+    void withGreedOf31_returns5Percent() {
+        int greed = 31;
+        double percentage = Formulas.getRollPercentage(greed);
+        assertEquals(0.2F, percentage, 0.0001F);
+    }
 }
