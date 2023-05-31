@@ -91,6 +91,7 @@ public class Mite extends Animal implements NeutralMob {
                 Block block = this.level.getBlockState(this.blockPosition()).getBlock();
                 if (block instanceof HoneyBlock) {
                     if (!this.isDigesting) {
+                        this.tryToHealFromEating();
                         this.playSound(block.asItem().getEatingSound());
                     }
                     this.isDigesting = true;
@@ -116,6 +117,13 @@ public class Mite extends Animal implements NeutralMob {
                     this.isDigesting = false;
                 }
             }
+        }
+    }
+
+    private void tryToHealFromEating() {
+        int roll = this.random.nextInt(6);
+        if (roll == 0) {
+            this.heal(1.0F);
         }
     }
 
@@ -219,12 +227,14 @@ public class Mite extends Animal implements NeutralMob {
             int i = this.getAge();
             if (!this.level.isClientSide && i == 0 && this.canFallInLove()) {
                 this.usePlayerItem(pPlayer, pHand, itemstack);
+                this.tryToHealFromEating();
                 this.setInLove(pPlayer);
                 return InteractionResult.SUCCESS;
             }
 
             if (this.isBaby()) {
                 this.usePlayerItem(pPlayer, pHand, itemstack);
+                this.tryToHealFromEating();
                 this.ageUp(getSpeedUpSecondsWhenFeeding(-i), true);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
@@ -251,6 +261,7 @@ public class Mite extends Animal implements NeutralMob {
                         return InteractionResult.PASS;
                     }
                     this.usePlayerItem(pPlayer, pHand, itemstack);
+                    this.tryToHealFromEating();
                     this.playSound(itemstack.getEatingSound());
                     enthrallCandidates.put(Enthrall.NONE, 0.);
                     Random die = new Random();
