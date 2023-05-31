@@ -1,5 +1,6 @@
 package com.nurdoidz.mites.util;
 
+import com.nurdoidz.mites.entity.Mite;
 import java.util.Random;
 
 public interface Formulas {
@@ -14,5 +15,27 @@ public interface Formulas {
 
     static byte getNewIV() {
         return (byte) new Random().nextInt(32);
+    }
+
+    static Mite applyIvInheritance(Mite pFather, Mite pMother, Mite pChild) {
+        byte maxAppetite = (byte) (Math.max(pFather.getAppetite(), pMother.getAppetite()));
+        byte maxGreed = (byte) (Math.max(pFather.getGreed(), pMother.getGreed()));
+        if (maxAppetite == maxGreed) {
+            if (maxAppetite == 31) {
+                pChild.setAppetite((byte) 31);
+                pChild.setGreed((byte) 31);
+                return pChild;
+            }
+            pChild.setAppetite((byte) (new Random().nextInt(31 - maxAppetite) + maxAppetite));
+            pChild.setGreed((byte) (new Random().nextInt(31 - maxGreed) + maxGreed));
+            return pChild;
+        } else if (maxAppetite > maxGreed) {
+            pChild.setAppetite(maxAppetite);
+            pChild.setGreed(getNewIV());
+            return pChild;
+        }
+        pChild.setAppetite(getNewIV());
+        pChild.setGreed(maxGreed);
+        return pChild;
     }
 }

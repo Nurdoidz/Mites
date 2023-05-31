@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -63,10 +61,10 @@ public class Mite extends Animal implements NeutralMob {
         EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> DATA_ENTHRALL_TYPE = SynchedEntityData.defineId(Mite.class,
         EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<Integer> DATA_APPETITE = SynchedEntityData.defineId(Mite.class,
-        EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_GREED = SynchedEntityData.defineId(Mite.class,
-        EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Byte> DATA_APPETITE = SynchedEntityData.defineId(Mite.class,
+        EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> DATA_GREED = SynchedEntityData.defineId(Mite.class,
+        EntityDataSerializers.BYTE);
     private static final String NBT_ENTHRALL_TYPE = "EnthrallType";
     private static final String NBT_APPETITE = "Appetite";
     private static final String NBT_GREED = "Greed";
@@ -165,6 +163,7 @@ public class Mite extends Animal implements NeutralMob {
         if (child != null) {
             child.setEnthrall(this.getOffspringEnthrall(this, otherParent));
         }
+        Formulas.applyIvInheritance(this, otherParent, child);
         return child;
     }
 
@@ -263,8 +262,7 @@ public class Mite extends Animal implements NeutralMob {
                         Map.Entry.comparingByValue()).getKey();
                     if (thisEnthrall != finalEnthrall) {
                         this.setEnthrall(finalEnthrall);
-                        this.spawnConvertParticles(true);
-                    } else this.spawnConvertParticles(false);
+                    }
                 }
                 return InteractionResult.SUCCESS;
             }
@@ -274,7 +272,9 @@ public class Mite extends Animal implements NeutralMob {
             }
         } else if (itemstack.isEmpty()) {
             if (!this.level.isClientSide) {
-                pPlayer.sendSystemMessage(Component.literal("Type: " + this.getEnthrall().getName() + ", Appetite: " + this.getAppetite() + ", Greed: " + this.getGreed()));
+                pPlayer.sendSystemMessage(Component.literal(
+                    "Type: " + this.getEnthrall().getName() + ", Appetite: " + this.getAppetite() + ", Greed: "
+                        + this.getGreed()));
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;
@@ -282,20 +282,6 @@ public class Mite extends Animal implements NeutralMob {
         }
 
         return super.mobInteract(pPlayer, pHand);
-    }
-
-    private void spawnConvertParticles(boolean pSuccess) {
-        ParticleOptions particleOptions = ParticleTypes.PORTAL;
-        if (!pSuccess) {
-            particleOptions = ParticleTypes.SMOKE;
-        }
-
-        for(int i = 0; i < 7; ++i) {
-            double d0 = this.random.nextGaussian() * 0.02D;
-            double d1 = this.random.nextGaussian() * 0.02D;
-            double d2 = this.random.nextGaussian() * 0.02D;
-            this.level.addParticle(particleOptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
-        }
     }
 
     @Override
@@ -328,8 +314,8 @@ public class Mite extends Animal implements NeutralMob {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_ENTHRALL_TYPE, "plain");
-        this.entityData.define(DATA_APPETITE, 0);
-        this.entityData.define(DATA_GREED, 0);
+        this.entityData.define(DATA_APPETITE, Formulas.getNewIV());
+        this.entityData.define(DATA_GREED, Formulas.getNewIV());
         this.entityData.define(DATA_REMAINING_ANGER_TIME, 0);
     }
 
@@ -341,19 +327,19 @@ public class Mite extends Animal implements NeutralMob {
         pCompound.putInt(NBT_GREED, this.getGreed());
     }
 
-    private int getGreed() {
+    public byte getGreed() {
         return this.entityData.get(DATA_GREED);
     }
 
-    private void setGreed(int pGreed) {
+    public void setGreed(byte pGreed) {
         this.entityData.set(DATA_GREED, pGreed);
     }
 
-    private int getAppetite() {
+    public byte getAppetite() {
         return this.entityData.get(DATA_APPETITE);
     }
 
-    private void setAppetite(int pAppetite) {
+    public void setAppetite(byte pAppetite) {
         this.entityData.set(DATA_APPETITE, pAppetite);
     }
 
@@ -366,12 +352,12 @@ public class Mite extends Animal implements NeutralMob {
             this.setEnthrall(Enthrall.NONE);
         }
         if (pCompound.contains(NBT_APPETITE, 99)) {
-            this.setAppetite(pCompound.getInt(NBT_APPETITE));
+            this.setAppetite(pCompound.getByte(NBT_APPETITE));
         } else {
             this.setAppetite(Formulas.getNewIV());
         }
         if (pCompound.contains(NBT_GREED, 99)) {
-            this.setGreed(pCompound.getInt(NBT_GREED));
+            this.setGreed(pCompound.getByte(NBT_GREED));
         } else {
             this.setGreed(Formulas.getNewIV());
         }
