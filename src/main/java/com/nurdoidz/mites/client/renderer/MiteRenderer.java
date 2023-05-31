@@ -22,12 +22,12 @@ public class MiteRenderer extends MobRenderer<Mite, MiteModel> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(Mite mite) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull Mite mite) {
         return MITE_LOCATION;
     }
 
     @Override
-    protected void scale(Mite mite, PoseStack poseStack, float f) {
+    protected void scale(Mite mite, @NotNull PoseStack poseStack, float f) {
         if (mite.isBaby()) {
             poseStack.scale(0.5F, 0.5F, 0.5F);
         } else {

@@ -1,6 +1,6 @@
 package com.nurdoidz.mites.entity;
 
-import com.nurdoidz.mites.init.EntityInit;
+import com.nurdoidz.mites.registry.MitesEntities;
 import com.nurdoidz.mites.util.Formulas;
 import java.util.Collections;
 import java.util.HashMap;
@@ -135,7 +135,7 @@ public class Mite extends Animal implements NeutralMob {
 
     @Nullable
     @Override
-    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+    protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
         return SoundEvents.SILVERFISH_HURT;
     }
 
@@ -146,7 +146,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    protected float getStandingEyeHeight(Pose pPose, EntityDimensions pDimensions) {
+    protected float getStandingEyeHeight(@NotNull Pose pPose, @NotNull EntityDimensions pDimensions) {
         return this.isBaby() ? 0.13F / 2 : 0.13F;
     }
 
@@ -165,9 +165,9 @@ public class Mite extends Animal implements NeutralMob {
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
+    public AgeableMob getBreedOffspring(@NotNull ServerLevel pLevel, @NotNull AgeableMob pOtherParent) {
         Mite otherParent = (Mite) pOtherParent;
-        Mite child = EntityInit.MITE.get().create(pLevel);
+        Mite child = MitesEntities.MITE.get().create(pLevel);
         if (child != null) {
             child.setEnthrall(this.getOffspringEnthrall(this, otherParent));
         }
@@ -195,7 +195,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    public boolean isFood(ItemStack pStack) {
+    public boolean isFood(@NotNull ItemStack pStack) {
         return FOOD_ITEMS.test(pStack);
     }
 
@@ -221,7 +221,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    public @NotNull InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
+    public @NotNull InteractionResult mobInteract(Player pPlayer, @NotNull InteractionHand pHand) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         if (this.isFood(itemstack)) {
             int i = this.getAge();
@@ -331,7 +331,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
+    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         pCompound.putString(NBT_ENTHRALL_TYPE, this.getEnthrall().getName());
         pCompound.putInt(NBT_APPETITE, this.getAppetite());
@@ -355,7 +355,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
+    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         if (pCompound.contains(NBT_ENTHRALL_TYPE, 8)) {
             this.setEnthrall(Enthrall.fromName(pCompound.getString(NBT_ENTHRALL_TYPE)));

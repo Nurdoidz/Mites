@@ -2,7 +2,7 @@ package com.nurdoidz.mites.event;
 
 import com.nurdoidz.mites.Mites;
 import com.nurdoidz.mites.entity.Mite;
-import com.nurdoidz.mites.init.EntityInit;
+import com.nurdoidz.mites.registry.MitesEntities;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -13,6 +13,6 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event) {
-        event.put(EntityInit.MITE.get(), Mite.getMiteAttributes().build());
+        event.put(MitesEntities.MITE.get(), Mite.getMiteAttributes().build());
     }
 }

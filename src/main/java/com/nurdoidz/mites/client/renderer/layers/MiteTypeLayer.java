@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class MiteTypeLayer extends RenderLayer<Mite, MiteModel> {
 
@@ -18,15 +19,16 @@ public class MiteTypeLayer extends RenderLayer<Mite, MiteModel> {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, Mite pLivingEntity,
+    public void render(@NotNull PoseStack pPoseStack, @NotNull MultiBufferSource pBuffer, int pPackedLight,
+        Mite pLivingEntity,
         float pLimbSwing, float pLimbSwingAmount, float pPartialTick, float pAgeInTicks, float pNetHeadYaw,
         float pHeadPitch) {
         if (!pLivingEntity.isInvisible()) {
             Mite.Enthrall miteEnthrall = pLivingEntity.getEnthrall();
 //            if (miteEnthrall != Mite.Enthrall.NONE) {
-                renderColoredCutoutModel(this.getParentModel(),
-                    new ResourceLocation(Mites.MODID, MITE_LOCATION + miteEnthrall.getName() + ".png"), pPoseStack,
-                    pBuffer, pPackedLight, pLivingEntity, 1.0F, 1.0F, 1.0F);
+            renderColoredCutoutModel(this.getParentModel(),
+                new ResourceLocation(Mites.MODID, MITE_LOCATION + miteEnthrall.getName() + ".png"), pPoseStack,
+                pBuffer, pPackedLight, pLivingEntity, 1.0F, 1.0F, 1.0F);
 //            }
         }
     }
