@@ -435,10 +435,10 @@ public class Mite extends Animal implements NeutralMob {
         if (pPlayer.isShiftKeyDown()) {
             switch (pInspector.next(this.getEnthrall())) {
                 case PARENT -> pPlayer.sendSystemMessage(
-                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent")));
+                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent")).withStyle(ChatFormatting.YELLOW));
                 case OFFSPRING -> {
                     MutableComponent component = MutableComponent.create(
-                            new TranslatableContents("entity.mites.inspector_selected_offspring"));
+                            new TranslatableContents("entity.mites.inspector_selected_offspring")).withStyle(ChatFormatting.YELLOW);
                     MutableComponent delimiter = MutableComponent.create(
                             new TranslatableContents("entity.mites.inspector_selected_offspring.delimiter"));
                     int count = 1;
