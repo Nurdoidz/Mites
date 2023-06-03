@@ -1,6 +1,7 @@
 package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.registry.MitesEntities;
+import com.nurdoidz.mites.registry.MitesItems;
 import com.nurdoidz.mites.util.Formulas;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ import org.jetbrains.annotations.Nullable;
 public class Mite extends Animal implements NeutralMob {
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.HONEY_BOTTLE);
+    private static final Ingredient INSPECTOR_ITEM = Ingredient.of(MitesItems.MITE_INSPECTOR.get());
     private static final EntityDataAccessor<Integer> DATA_REMAINING_ANGER_TIME = SynchedEntityData.defineId(Mite.class,
             EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> DATA_ENTHRALL_TYPE = SynchedEntityData.defineId(Mite.class,
@@ -221,6 +223,11 @@ public class Mite extends Animal implements NeutralMob {
         return false;
     }
 
+    public boolean isInspectorItem(@NotNull ItemStack pStack) {
+
+        return INSPECTOR_ITEM.test(pStack);
+    }
+
     public Enthrall getEnthrall() {
 
         return Enthrall.fromName(this.entityData.get(DATA_ENTHRALL_TYPE));
@@ -298,7 +305,7 @@ public class Mite extends Animal implements NeutralMob {
             if (this.level.isClientSide) {
                 return InteractionResult.CONSUME;
             }
-        } else if (itemstack.isEmpty()) {
+        } else if (this.isInspectorItem(itemstack)) {
             if (!this.level.isClientSide) {
                 pPlayer.sendSystemMessage(Component.literal(
                         "Type: " + this.getEnthrall().getName() + ", Appetite: " + this.getAppetite() + ", Greed: "
