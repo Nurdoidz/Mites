@@ -20,6 +20,7 @@ public class Mites {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public Mites() {
+
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MitesItems.register(modEventBus);

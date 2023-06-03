@@ -16,11 +16,13 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void entityRenderers(RegisterRenderers event) {
+
         event.registerEntityRenderer(MitesEntities.MITE.get(), MiteRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinitions(RegisterLayerDefinitions event) {
+
         event.registerLayerDefinition(MiteModel.LAYER_LOCATION, MiteModel::createBodyLayer);
     }
 }

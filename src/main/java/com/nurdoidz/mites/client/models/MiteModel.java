@@ -10,10 +10,11 @@ import net.minecraft.resources.ResourceLocation;
 public class MiteModel extends SilverfishModel<Mite> {
 
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-        new ResourceLocation(
-            Mites.MODID, "mite"), "main");
+            new ResourceLocation(
+                    Mites.MODID, "mite"), "main");
 
     public MiteModel(ModelPart root) {
+
         super(root);
     }
 }

@@ -13,6 +13,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event) {
+
         event.put(MitesEntities.MITE.get(), Mite.getMiteAttributes().build());
     }
 }

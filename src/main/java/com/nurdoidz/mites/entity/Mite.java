@@ -58,13 +58,13 @@ public class Mite extends Animal implements NeutralMob {
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.HONEY_BOTTLE);
     private static final EntityDataAccessor<Integer> DATA_REMAINING_ANGER_TIME = SynchedEntityData.defineId(Mite.class,
-        EntityDataSerializers.INT);
+            EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> DATA_ENTHRALL_TYPE = SynchedEntityData.defineId(Mite.class,
-        EntityDataSerializers.STRING);
+            EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Byte> DATA_APPETITE = SynchedEntityData.defineId(Mite.class,
-        EntityDataSerializers.BYTE);
+            EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> DATA_GREED = SynchedEntityData.defineId(Mite.class,
-        EntityDataSerializers.BYTE);
+            EntityDataSerializers.BYTE);
     private static final String NBT_ENTHRALL_TYPE = "EnthrallType";
     private static final String NBT_APPETITE = "Appetite";
     private static final String NBT_GREED = "Greed";
@@ -74,16 +74,19 @@ public class Mite extends Animal implements NeutralMob {
     private boolean isDigesting = false;
 
     public Mite(EntityType<? extends Mite> pType, Level pLevel) {
+
         super(pType, pLevel);
     }
 
     public static AttributeSupplier.Builder getMiteAttributes() {
+
         return Mob.createMobAttributes().add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MAX_HEALTH, 8.0D)
-            .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
+                .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
     }
 
     @Override
     public void aiStep() {
+
         super.aiStep();
         if (!this.level.isClientSide) {
             this.updatePersistentAnger((ServerLevel) this.level, true);
@@ -110,7 +113,7 @@ public class Mite extends Animal implements NeutralMob {
                     this.spawnAtLocation(stack);
                     if (count > 0) {
                         this.playSound(SoundEvents.CHICKEN_EGG, 1.0F,
-                            (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                                (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                     }
                     this.gameEvent(GameEvent.ENTITY_PLACE);
                     this.digestTimeLeft = this.getFinalDigestTime();
@@ -121,6 +124,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     private void tryToHealFromEating() {
+
         int roll = this.random.nextInt(6);
         if (roll == 0) {
             this.heal(1.0F);
@@ -130,28 +134,33 @@ public class Mite extends Animal implements NeutralMob {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
+
         return SoundEvents.SILVERFISH_AMBIENT;
     }
 
     @Nullable
     @Override
     protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
+
         return SoundEvents.SILVERFISH_HURT;
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound() {
+
         return SoundEvents.SILVERFISH_DEATH;
     }
 
     @Override
     protected float getStandingEyeHeight(@NotNull Pose pPose, @NotNull EntityDimensions pDimensions) {
+
         return this.isBaby() ? 0.13F / 2 : 0.13F;
     }
 
     @Override
     protected void registerGoals() {
+
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level));
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
@@ -160,12 +169,13 @@ public class Mite extends Animal implements NeutralMob {
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2,
-            new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
+                new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
     }
 
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(@NotNull ServerLevel pLevel, @NotNull AgeableMob pOtherParent) {
+
         Mite otherParent = (Mite) pOtherParent;
         Mite child = MitesEntities.MITE.get().create(pLevel);
         if (child != null) {
@@ -176,6 +186,7 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     private Enthrall getOffspringEnthrall(Mite pFather, Mite pMother) {
+
         Map<Enthrall, Double> enthrallCandidates = new HashMap<>();
         Enthrall father = pFather.getEnthrall();
         Enthrall mother = pMother.getEnthrall();
@@ -196,10 +207,12 @@ public class Mite extends Animal implements NeutralMob {
 
     @Override
     public boolean isFood(@NotNull ItemStack pStack) {
+
         return FOOD_ITEMS.test(pStack);
     }
 
     public boolean isEnthrallItem(ItemStack pStack) {
+
         for (Enthrall enthrall : Enthrall.values()) {
             if (enthrall.getEnthrallingItems().contains(pStack.getItem())) {
                 return true;
@@ -209,19 +222,23 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public Enthrall getEnthrall() {
+
         return Enthrall.fromName(this.entityData.get(DATA_ENTHRALL_TYPE));
     }
 
     public void setEnthrall(Enthrall pEnthrall) {
+
         this.entityData.set(DATA_ENTHRALL_TYPE, pEnthrall.getName());
     }
 
     private int getFinalDigestTime() {
+
         return Formulas.getFinalDigestTime(this.getEnthrall().getBaseDigestTime(), this.getAppetite());
     }
 
     @Override
     public @NotNull InteractionResult mobInteract(Player pPlayer, @NotNull InteractionHand pHand) {
+
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         if (this.isFood(itemstack)) {
             int i = this.getAge();
@@ -270,7 +287,7 @@ public class Mite extends Animal implements NeutralMob {
                         enthrallCandidates.replace(enthrall, (double) roll / (double) enthrall.getConversion());
                     }
                     final Enthrall finalEnthrall = Collections.max(enthrallCandidates.entrySet(),
-                        Map.Entry.comparingByValue()).getKey();
+                            Map.Entry.comparingByValue()).getKey();
                     if (thisEnthrall != finalEnthrall) {
                         this.setEnthrall(finalEnthrall);
                     }
@@ -284,8 +301,8 @@ public class Mite extends Animal implements NeutralMob {
         } else if (itemstack.isEmpty()) {
             if (!this.level.isClientSide) {
                 pPlayer.sendSystemMessage(Component.literal(
-                    "Type: " + this.getEnthrall().getName() + ", Appetite: " + this.getAppetite() + ", Greed: "
-                        + this.getGreed()));
+                        "Type: " + this.getEnthrall().getName() + ", Appetite: " + this.getAppetite() + ", Greed: "
+                                + this.getGreed()));
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;
@@ -297,32 +314,38 @@ public class Mite extends Animal implements NeutralMob {
 
     @Override
     public int getRemainingPersistentAngerTime() {
+
         return this.entityData.get(DATA_REMAINING_ANGER_TIME);
     }
 
     @Override
     public void setRemainingPersistentAngerTime(int pTime) {
+
         this.entityData.set(DATA_REMAINING_ANGER_TIME, pTime);
     }
 
     @Nullable
     @Override
     public UUID getPersistentAngerTarget() {
+
         return this.persistentAngerTarget;
     }
 
     @Override
     public void setPersistentAngerTarget(@Nullable UUID pTarget) {
+
         this.persistentAngerTarget = pTarget;
     }
 
     @Override
     public void startPersistentAngerTimer() {
+
         this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
     }
 
     @Override
     protected void defineSynchedData() {
+
         super.defineSynchedData();
         this.entityData.define(DATA_ENTHRALL_TYPE, "plain");
         this.entityData.define(DATA_APPETITE, Formulas.getNewIV());
@@ -332,6 +355,7 @@ public class Mite extends Animal implements NeutralMob {
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
+
         super.addAdditionalSaveData(pCompound);
         pCompound.putString(NBT_ENTHRALL_TYPE, this.getEnthrall().getName());
         pCompound.putInt(NBT_APPETITE, this.getAppetite());
@@ -339,23 +363,28 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public byte getGreed() {
+
         return this.entityData.get(DATA_GREED);
     }
 
     public void setGreed(byte pGreed) {
+
         this.entityData.set(DATA_GREED, pGreed);
     }
 
     public byte getAppetite() {
+
         return this.entityData.get(DATA_APPETITE);
     }
 
     public void setAppetite(byte pAppetite) {
+
         this.entityData.set(DATA_APPETITE, pAppetite);
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
+
         super.readAdditionalSaveData(pCompound);
         if (pCompound.contains(NBT_ENTHRALL_TYPE, 8)) {
             this.setEnthrall(Enthrall.fromName(pCompound.getString(NBT_ENTHRALL_TYPE)));
@@ -376,64 +405,65 @@ public class Mite extends Animal implements NeutralMob {
 
     @Override
     public @NotNull MobType getMobType() {
+
         return MobType.ARTHROPOD;
     }
 
     public enum Enthrall {
         NONE("plain", Items.AIR, 100, 10, new HashSet<>(),
-            Stream.of(Items.ROTTEN_FLESH).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.ROTTEN_FLESH).collect(Collectors.toCollection(HashSet::new))),
         STONE("stone", Items.COBBLESTONE, 100, 13, new HashSet<>(),
-            Stream.of(Items.STONE).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.STONE).collect(Collectors.toCollection(HashSet::new))),
         FLINT("flint", Items.FLINT, 400, 15, new HashSet<>(),
-            Stream.of(Items.FLINT).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.FLINT).collect(Collectors.toCollection(HashSet::new))),
         DIRT("dirt", Items.DIRT, 300, 14, new HashSet<>(),
-            Stream.of(Items.DIRT).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.DIRT).collect(Collectors.toCollection(HashSet::new))),
         WOOD("wood", Items.OAK_LOG, 300, 15, new HashSet<>(),
-            Stream.of(Items.OAK_LOG).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.OAK_LOG).collect(Collectors.toCollection(HashSet::new))),
         BONE("bone", Items.BONE_MEAL, 500, 15, new HashSet<>(),
-            Stream.of(Items.COD, Items.SALMON, Items.TROPICAL_FISH).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.COD, Items.SALMON, Items.TROPICAL_FISH).collect(Collectors.toCollection(HashSet::new))),
         CLAY("clay", Items.CLAY_BALL, 200, 14, new HashSet<>(),
-            Stream.of(Items.CLAY).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.CLAY).collect(Collectors.toCollection(HashSet::new))),
         CACTUS("cactus", Items.CACTUS, 600, 16, new HashSet<>(),
-            Stream.of(Items.GREEN_DYE).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.GREEN_DYE).collect(Collectors.toCollection(HashSet::new))),
         SNOW("snow", Items.SNOWBALL, 200, 14, new HashSet<>(),
-            Stream.of(Items.SNOW_BLOCK).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.SNOW_BLOCK).collect(Collectors.toCollection(HashSet::new))),
         ICE("ice", Items.ICE, 700, 16, new HashSet<>(),
-            Stream.of(Items.ICE).collect(Collectors.toCollection(HashSet::new))),
+                Stream.of(Items.ICE).collect(Collectors.toCollection(HashSet::new))),
         GRAVEL("gravel", Items.GRAVEL, 400, 15,
-            Stream.of(STONE, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(STONE, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         SAND("sand", Items.SAND, 500, 15,
-            Stream.of(GRAVEL, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(GRAVEL, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         COAL("coal", Items.COAL, 600, 17,
-            Stream.of(WOOD, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(WOOD, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         REDSTONE("redstone", Items.REDSTONE, 600, 17,
-            Stream.of(SAND, COAL).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(SAND, COAL).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         SUGAR("sugar", Items.SUGAR, 600, 16,
-            Stream.of(REDSTONE, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(REDSTONE, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         GUNPOWDER("gunpowder", Items.GUNPOWDER, 700, 17,
-            Stream.of(REDSTONE, SUGAR).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(REDSTONE, SUGAR).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         SLIME("slime", Items.SLIME_BALL, 800, 17,
-            Stream.of(CACTUS, SUGAR).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(CACTUS, SUGAR).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         STRING("string", Items.STRING, 800, 16,
-            Stream.of(SUGAR, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(SUGAR, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         IRON("iron", Items.IRON_NUGGET, 900, 18,
-            Stream.of(GUNPOWDER, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(GUNPOWDER, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         LAPIS("lapis", Items.LAPIS_LAZULI, 1000, 19,
-            Stream.of(ICE, REDSTONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(ICE, REDSTONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         QUARTZ("quartz", Items.QUARTZ, 1000, 19,
-            Stream.of(LAPIS, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(LAPIS, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         BLAZE("blaze", Items.BLAZE_POWDER, 1600, 20,
-            Stream.of(GUNPOWDER, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(GUNPOWDER, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         OBSIDIAN("obsidian", Items.OBSIDIAN, 1200, 19,
-            Stream.of(ICE, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(ICE, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         GLASS("glass", Items.GLASS, 800, 17,
-            Stream.of(SAND, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(SAND, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         GOLD("gold", Items.GOLD_NUGGET, 1800, 20,
-            Stream.of(IRON, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(IRON, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         DIAMOND("diamond", Items.DIAMOND, 2400, 22,
-            Stream.of(COAL, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
+                Stream.of(COAL, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>()),
         EMERALD("emerald", Items.EMERALD, 2400, 22,
-            Stream.of(DIAMOND, SLIME).collect(Collectors.toCollection(HashSet::new)), new HashSet<>());
+                Stream.of(DIAMOND, SLIME).collect(Collectors.toCollection(HashSet::new)), new HashSet<>());
         private final Item item;
         private final String name;
         private final int baseDigestTime;
@@ -442,7 +472,8 @@ public class Mite extends Animal implements NeutralMob {
         private final Set<Item> enthrallingItems;
 
         Enthrall(String pName, Item pEnthrallItem, int pBaseDigestTime, int pConversion,
-            Set<Enthrall> pParents, Set<Item> pEnthrallingItems) {
+                Set<Enthrall> pParents, Set<Item> pEnthrallingItems) {
+
             this.name = pName;
             this.item = pEnthrallItem;
             this.baseDigestTime = pBaseDigestTime;
@@ -452,6 +483,7 @@ public class Mite extends Animal implements NeutralMob {
         }
 
         public static Enthrall fromName(String pName) {
+
             for (Enthrall enthrall : Enthrall.values()) {
                 if (enthrall.name.equals(pName)) {
                     return enthrall;
@@ -461,6 +493,7 @@ public class Mite extends Animal implements NeutralMob {
         }
 
         public static Enthrall fromItem(ItemStack pStack) {
+
             if (pStack.isEmpty()) {
                 return Enthrall.NONE;
             }
@@ -474,30 +507,37 @@ public class Mite extends Animal implements NeutralMob {
         }
 
         public int getBaseDigestTime() {
+
             return this.baseDigestTime;
         }
 
         public Item getItem() {
+
             return this.item;
         }
 
         public String getName() {
+
             return this.name;
         }
 
         public int getConversion() {
+
             return this.conversion;
         }
 
         public boolean isConvertibleByItem() {
+
             return !this.enthrallingItems.isEmpty();
         }
 
         public Set<Enthrall> getParents() {
+
             return Collections.unmodifiableSet(this.parents);
         }
 
         public Set<Item> getEnthrallingItems() {
+
             return Collections.unmodifiableSet(this.enthrallingItems);
         }
     }
