@@ -1,7 +1,6 @@
 package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.config.MitesCommonConfig;
-import com.nurdoidz.mites.item.InspectorTool;
 import com.nurdoidz.mites.registry.MitesEntities;
 import com.nurdoidz.mites.registry.MitesItems;
 import com.nurdoidz.mites.util.Formulas;
@@ -15,6 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -42,6 +42,7 @@ import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -53,9 +54,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HoneyBlock;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +98,9 @@ public class Mite extends Animal implements NeutralMob {
         results.add(pFather);
         results.add(pMother);
         results.add(Enthrall.NONE);
-        if (pFather.equals(pMother)) return results;
+        if (pFather.equals(pMother)) {
+            return results;
+        }
         for (Enthrall enthrall : Enthrall.values()) {
             if (enthrall.getParents().contains(pFather) && enthrall.getParents().contains(pMother)) {
                 results.add(enthrall);
@@ -111,32 +115,26 @@ public class Mite extends Animal implements NeutralMob {
         super.aiStep();
         if (!this.level.isClientSide) {
             this.updatePersistentAnger((ServerLevel) this.level, true);
-            if (this.isAlive() && !this.isBaby()) {
-                Block block = this.level.getBlockState(this.blockPosition()).getBlock();
-                if (block instanceof HoneyBlock) {
-                    if (!this.isDigesting) {
-                        this.tryToHealFromEating();
-                        this.playSound(block.asItem().getEatingSound());
-                    }
-                    this.isDigesting = true;
-                }
+            if (this.isAlive()) {
                 if (--this.digestTimeLeft <= 0 && this.isDigesting) {
-                    double chance = Formulas.getRollPercentage(this.getGreed());
-                    int count = 0;
-                    for (int i = 0; i < 4; i++) {
-                        double roll = this.random.nextDouble();
-                        if (roll <= chance) {
-                            count++;
+                    if (!this.isBaby()) {
+                        double chance = Formulas.getRollPercentage(this.getGreed());
+                        int count = 0;
+                        for (int i = 0; i < 4; i++) {
+                            double roll = this.random.nextDouble();
+                            if (roll <= chance) {
+                                count++;
+                            }
                         }
+                        ItemStack stack = new ItemStack(this.getEnthrall().getItem());
+                        stack.setCount(count);
+                        this.spawnAtLocation(stack);
+                        if (count > 0) {
+                            this.playSound(SoundEvents.CHICKEN_EGG, 1.0F,
+                                    (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+                        }
+                        this.gameEvent(GameEvent.ENTITY_PLACE);
                     }
-                    ItemStack stack = new ItemStack(this.getEnthrall().getItem());
-                    stack.setCount(count);
-                    this.spawnAtLocation(stack);
-                    if (count > 0) {
-                        this.playSound(SoundEvents.CHICKEN_EGG, 1.0F,
-                                (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-                    }
-                    this.gameEvent(GameEvent.ENTITY_PLACE);
                     this.digestTimeLeft = this.getFinalDigestTime();
                     this.isDigesting = false;
                 }
@@ -187,7 +185,8 @@ public class Mite extends Animal implements NeutralMob {
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
         this.goalSelector.addGoal(3, new BreedGoal(this, 1.0D));
         this.goalSelector.addGoal(4, new TemptGoal(this, 1.2D, FOOD_ITEMS, false));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(5, new MiteGoToHoneyBlockGoal(this, 1.2D));
+        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2,
                 new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
@@ -436,10 +435,12 @@ public class Mite extends Animal implements NeutralMob {
         if (pPlayer.isShiftKeyDown()) {
             switch (pInspector.next(this.getEnthrall())) {
                 case PARENT -> pPlayer.sendSystemMessage(
-                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent")).withStyle(ChatFormatting.YELLOW));
+                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent"))
+                                .withStyle(ChatFormatting.YELLOW));
                 case OFFSPRING -> {
                     MutableComponent component = MutableComponent.create(
-                            new TranslatableContents("entity.mites.inspector_selected_offspring")).withStyle(ChatFormatting.YELLOW);
+                                    new TranslatableContents("entity.mites.inspector_selected_offspring"))
+                            .withStyle(ChatFormatting.YELLOW);
                     MutableComponent delimiter = MutableComponent.create(
                             new TranslatableContents("entity.mites.inspector_selected_offspring.delimiter"));
                     int count = 1;
@@ -465,6 +466,16 @@ public class Mite extends Animal implements NeutralMob {
                             .append(MutableComponent.create(
                                     GreedInspector.fromValue(this.getGreed()).getTranslatable())));
         }
+
+    }
+
+    private void tryToEat() {
+
+        if (!this.isDigesting) {
+            this.tryToHealFromEating();
+            this.playSound(Blocks.HONEY_BLOCK.asItem().getEatingSound());
+        }
+        this.isDigesting = true;
 
     }
 
@@ -730,6 +741,70 @@ public class Mite extends Animal implements NeutralMob {
         public TranslatableContents getTranslatableName() {
 
             return this.translatableName;
+        }
+    }
+
+    static class MiteGoToHoneyBlockGoal extends MoveToBlockGoal {
+
+        private final Mite mite;
+
+        MiteGoToHoneyBlockGoal(Mite pMite, double pSpeedModifier) {
+
+            super(pMite, pSpeedModifier, 8, 2);
+            this.mite = pMite;
+        }
+
+        @Override
+        public boolean canUse() {
+
+            return !this.mite.isDigesting && super.canUse();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+
+            return !this.mite.isDigesting && this.isValidTarget(this.mite.level, this.blockPos);
+        }
+
+        @Override
+        public void tick() {
+
+            super.tick();
+            if (this.isNextToHoney()) {
+                this.mite.tryToEat();
+            }
+        }
+
+        private boolean isNextToHoney() {
+
+            int i = 2;
+            int j = 2;
+            BlockPos blockpos = this.mob.blockPosition();
+            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+
+            for (int k = this.verticalSearchStart; k <= j; k = k > 0 ? -k : 1 - k) {
+                for (int l = 0; l < i; ++l) {
+                    for (int i1 = 0; i1 <= l; i1 = i1 > 0 ? -i1 : 1 - i1) {
+                        for (int j1 = i1 < l && i1 > -l ? l : 0; j1 <= l; j1 = j1 > 0 ? -j1 : 1 - j1) {
+                            mutableBlockPos.setWithOffset(blockpos, i1, k - 1, j1);
+                            if (this.mob.isWithinRestriction(mutableBlockPos) && this.isValidTarget(this.mob.level,
+                                    mutableBlockPos)) {
+                                this.blockPos = mutableBlockPos;
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        protected boolean isValidTarget(LevelReader pLevel, BlockPos pPos) {
+
+            return pLevel.getBlockState(pPos).is(Blocks.HONEY_BLOCK) && pLevel.isEmptyBlock(pPos.above())
+                    && pLevel.getBlockState(pPos.above()).isPathfindable(pLevel, pPos, PathComputationType.LAND);
         }
     }
 }
