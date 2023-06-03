@@ -1,5 +1,6 @@
 package com.nurdoidz.mites.entity;
 
+import com.nurdoidz.mites.item.InspectorTool;
 import com.nurdoidz.mites.registry.MitesEntities;
 import com.nurdoidz.mites.registry.MitesItems;
 import com.nurdoidz.mites.util.Formulas;
@@ -86,6 +87,20 @@ public class Mite extends Animal implements NeutralMob {
 
         return Mob.createMobAttributes().add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MAX_HEALTH, 8.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
+    }
+
+    public static Set<Enthrall> getEnthrallCandidates(Enthrall pFather, Enthrall pMother) {
+
+        Set<Enthrall> results = new HashSet<>();
+        results.add(pFather);
+        results.add(pMother);
+        results.add(Enthrall.NONE);
+        for (Enthrall enthrall : Enthrall.values()) {
+            if (enthrall.getParents().contains(pFather) && enthrall.getParents().contains(pMother)) {
+                results.add(enthrall);
+            }
+        }
+        return results;
     }
 
     @Override
@@ -192,15 +207,10 @@ public class Mite extends Animal implements NeutralMob {
     private Enthrall getOffspringEnthrall(Mite pFather, Mite pMother) {
 
         Map<Enthrall, Double> enthrallCandidates = new HashMap<>();
-        Enthrall father = pFather.getEnthrall();
-        Enthrall mother = pMother.getEnthrall();
-        enthrallCandidates.put(father, 0.);
-        enthrallCandidates.put(mother, 0.);
-        for (Enthrall enthrall : Enthrall.values()) {
-            if (enthrall.getParents().contains(father) && enthrall.getParents().contains(mother)) {
-                enthrallCandidates.put(enthrall, 0.);
-            }
+        for (Enthrall enthrall : getEnthrallCandidates(pFather.getEnthrall(), pMother.getEnthrall())) {
+            enthrallCandidates.put(enthrall, 0.);
         }
+
         Random die = new Random();
         for (Enthrall enthrall : enthrallCandidates.keySet()) {
             int roll = die.nextInt(101);
@@ -309,7 +319,7 @@ public class Mite extends Animal implements NeutralMob {
             }
         } else if (this.isInspectorItem(itemstack)) {
             if (!this.level.isClientSide) {
-                this.handleInspectorTool(pPlayer);
+                this.handleInspectorTool(pPlayer, (InspectorTool) itemstack.getItem());
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;
@@ -416,14 +426,44 @@ public class Mite extends Animal implements NeutralMob {
         return MobType.ARTHROPOD;
     }
 
-    private void handleInspectorTool(Player pPlayer) {
+    private void handleInspectorTool(Player pPlayer, InspectorTool pInspector) {
 
-        pPlayer.sendSystemMessage(
-                MutableComponent.create(this.getEnthrall().getTranslatableName()).withStyle(ChatFormatting.YELLOW)
-                        .append(MutableComponent.create(new TranslatableContents("entity.mites.inspector_type_suffix")))
-                        .append(MutableComponent.create(
-                                AppetiteInspector.fromValue(this.getAppetite()).getTranslatable()))
-                        .append(MutableComponent.create(GreedInspector.fromValue(this.getGreed()).getTranslatable())));
+        if (this.level.isClientSide) {
+            return;
+        }
+        if (pPlayer.isShiftKeyDown()) {
+            switch (pInspector.next(this.getEnthrall())) {
+                case PARENT -> pPlayer.sendSystemMessage(
+                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent")));
+                case OFFSPRING -> {
+                    MutableComponent component = MutableComponent.create(
+                            new TranslatableContents("entity.mites.inspector_selected_offspring"));
+                    MutableComponent delimiter = MutableComponent.create(
+                            new TranslatableContents("entity.mites.inspector_selected_offspring.delimiter"));
+                    int count = 1;
+                    for (Enthrall enthrall : pInspector.getOffspring()) {
+                        component.append(MutableComponent.create(enthrall.getTranslatableName()));
+                        if (pInspector.getOffspring().size() > count) {
+                            component.append(delimiter);
+                        }
+                        count++;
+                    }
+                    pPlayer.sendSystemMessage(component);
+                }
+                default -> {
+                }
+            }
+        } else {
+            pPlayer.sendSystemMessage(
+                    MutableComponent.create(this.getEnthrall().getTranslatableName()).withStyle(ChatFormatting.YELLOW)
+                            .append(MutableComponent.create(
+                                    new TranslatableContents("entity.mites.inspector_type_suffix")))
+                            .append(MutableComponent.create(
+                                    AppetiteInspector.fromValue(this.getAppetite()).getTranslatable()))
+                            .append(MutableComponent.create(
+                                    GreedInspector.fromValue(this.getGreed()).getTranslatable())));
+        }
+
     }
 
     public enum GreedInspector {

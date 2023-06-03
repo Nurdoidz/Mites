@@ -38,5 +38,8 @@
   "entity.mites.enthrall.gold.name": "Gold",
   "entity.mites.enthrall.diamond.name": "Diamond",
   "entity.mites.enthrall.emerald.name": "Emerald",
-  "entity.mites.inspector_type_suffix": " type. "
+  "entity.mites.inspector_type_suffix": " type. ",
+  "entity.mites.inspector_selected_parent": "Parent selected. Select another mite to see offspring.",
+  "entity.mites.inspector_selected_offspring": "Potential offspring: ",
+  "entity.mites.inspector_selected_offspring.delimiter": ", "
 }
