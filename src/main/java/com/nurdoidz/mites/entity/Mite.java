@@ -95,6 +95,7 @@ public class Mite extends Animal implements NeutralMob {
         results.add(pFather);
         results.add(pMother);
         results.add(Enthrall.NONE);
+        if (pFather.equals(pMother)) return results;
         for (Enthrall enthrall : Enthrall.values()) {
             if (enthrall.getParents().contains(pFather) && enthrall.getParents().contains(pMother)) {
                 results.add(enthrall);
