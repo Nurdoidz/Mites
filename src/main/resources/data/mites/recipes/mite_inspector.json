@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "G": {
+      "item": "minecraft:brown_stained_glass"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "pattern": [
+    " GD",
+    " SG",
+    "S  "
+  ],
+  "result": {
+    "item": "mites:mite_inspector"
+  }
+}
