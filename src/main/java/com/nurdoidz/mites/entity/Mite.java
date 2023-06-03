@@ -1,6 +1,7 @@
 package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.config.MitesCommonConfig;
+import com.nurdoidz.mites.item.InspectorTool;
 import com.nurdoidz.mites.registry.MitesEntities;
 import com.nurdoidz.mites.registry.MitesItems;
 import com.nurdoidz.mites.util.Formulas;
@@ -24,6 +25,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
@@ -33,6 +35,7 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.Pose;
@@ -54,6 +57,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -90,6 +94,12 @@ public class Mite extends Animal implements NeutralMob {
 
         return Mob.createMobAttributes().add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MAX_HEALTH, 8.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 1.0D);
+    }
+
+    public static boolean checkMiteSpawnRules(EntityType<Mite> pMite, LevelAccessor pLevel,
+            MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
+
+        return pLevel.getBlockState(pPos.below()).is(Blocks.SAND) && isBrightEnoughToSpawn(pLevel, pPos);
     }
 
     public static Set<Enthrall> getEnthrallCandidates(Enthrall pFather, Enthrall pMother) {
