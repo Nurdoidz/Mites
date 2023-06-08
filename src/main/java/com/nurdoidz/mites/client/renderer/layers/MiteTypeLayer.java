@@ -27,11 +27,9 @@ public class MiteTypeLayer extends RenderLayer<Mite, MiteModel> {
 
         if (!pLivingEntity.isInvisible()) {
             Mite.Enthrall miteEnthrall = pLivingEntity.getEnthrall();
-//            if (miteEnthrall != Mite.Enthrall.NONE) {
             renderColoredCutoutModel(this.getParentModel(),
                     new ResourceLocation(Mites.MODID, MITE_LOCATION + miteEnthrall.getName() + ".png"), pPoseStack,
                     pBuffer, pPackedLight, pLivingEntity, 1.0F, 1.0F, 1.0F);
-//            }
         }
     }
 }
