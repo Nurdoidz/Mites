@@ -67,7 +67,7 @@ public class MitesCommonConfig {
         BUILDER.push("Mite Enthralls base digest time");
 
         NONE_ENTHRALL_BASE_DIGEST_TIME = BUILDER
-                .comment("Base time in ticks it takes a None Mite to try creating its resource.")
+                .comment("Base time in ticks it takes a Plain Mite to try creating its resource.")
                 .define("Plain Mite base digest time", 100);
         STONE_ENTHRALL_BASE_DIGEST_TIME = BUILDER
                 .comment("Base time in ticks it takes a Stone Mite to try creating its resource.")
@@ -152,7 +152,7 @@ public class MitesCommonConfig {
         BUILDER.push("Mite Enthralls conversion factor");
 
         NONE_ENTHRALL_CONVERSION = BUILDER
-                .comment("Weight factor for None Mite. Used when converting and breeding. Higher values mean rarer.")
+                .comment("Weight factor for Plain Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Plain Mite conversion factor", 10);
         STONE_ENTHRALL_CONVERSION = BUILDER
                 .comment("Weight factor for Stone Mite. Used when converting and breeding. Higher values mean rarer.")
