@@ -123,8 +123,8 @@ public class Mite extends Animal implements NeutralMob {
     public void aiStep() {
 
         super.aiStep();
-        if (!this.level.isClientSide) {
-            this.updatePersistentAnger((ServerLevel) this.level, true);
+        if (!this.level().isClientSide) {
+            this.updatePersistentAnger((ServerLevel) this.level(), true);
             if (this.isAlive()) {
                 if (--this.digestTimeLeft <= 0 && this.isDigesting) {
                     if (!this.isBaby()) {
@@ -191,7 +191,7 @@ public class Mite extends Animal implements NeutralMob {
     protected void registerGoals() {
 
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level));
+        this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level()));
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
         this.goalSelector.addGoal(3, new BreedGoal(this, 1.0D));
         this.goalSelector.addGoal(4, new TemptGoal(this, 1.2D, FOOD_ITEMS, false));
@@ -272,7 +272,7 @@ public class Mite extends Animal implements NeutralMob {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         if (this.isFood(itemstack)) {
             int i = this.getAge();
-            if (!this.level.isClientSide && i == 0 && this.canFallInLove()) {
+            if (!this.level().isClientSide && i == 0 && this.canFallInLove()) {
                 this.usePlayerItem(pPlayer, pHand, itemstack);
                 this.tryToHealFromEating();
                 this.setInLove(pPlayer);
@@ -283,14 +283,14 @@ public class Mite extends Animal implements NeutralMob {
                 this.usePlayerItem(pPlayer, pHand, itemstack);
                 this.tryToHealFromEating();
                 this.ageUp(getSpeedUpSecondsWhenFeeding(-i), true);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
 
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             }
         } else if (this.isEnthrallItem(itemstack)) {
-            if (!this.level.isClientSide && !this.isBaby()) {
+            if (!this.level().isClientSide && !this.isBaby()) {
                 Enthrall convertedEnthrall = Enthrall.fromItem(itemstack);
                 Enthrall thisEnthrall = this.getEnthrall();
                 if (thisEnthrall != convertedEnthrall && convertedEnthrall.isConvertibleByItem()) {
@@ -325,11 +325,11 @@ public class Mite extends Animal implements NeutralMob {
                 return InteractionResult.SUCCESS;
             }
 
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             }
         } else if (this.isInspectorItem(itemstack)) {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.handleInspectorTool(pPlayer, (InspectorTool) itemstack.getItem());
                 return InteractionResult.SUCCESS;
             } else {
@@ -439,20 +439,23 @@ public class Mite extends Animal implements NeutralMob {
 
     private void handleInspectorTool(Player pPlayer, InspectorTool pInspector) {
 
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             return;
         }
         if (pPlayer.isShiftKeyDown()) {
             switch (pInspector.next(this.getEnthrall())) {
                 case PARENT -> pPlayer.sendSystemMessage(
-                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent"))
+                        MutableComponent.create(new TranslatableContents("entity.mites.inspector_selected_parent", null,
+                                        TranslatableContents.NO_ARGS))
                                 .withStyle(ChatFormatting.YELLOW));
                 case OFFSPRING -> {
                     MutableComponent component = MutableComponent.create(
-                                    new TranslatableContents("entity.mites.inspector_selected_offspring"))
+                                    new TranslatableContents("entity.mites.inspector_selected_offspring", null,
+                                            TranslatableContents.NO_ARGS))
                             .withStyle(ChatFormatting.YELLOW);
                     MutableComponent delimiter = MutableComponent.create(
-                            new TranslatableContents("entity.mites.inspector_selected_offspring.delimiter"));
+                            new TranslatableContents("entity.mites.inspector_selected_offspring.delimiter", null,
+                                    TranslatableContents.NO_ARGS));
                     int count = 1;
                     for (Enthrall enthrall : pInspector.getOffspring()) {
                         component.append(MutableComponent.create(enthrall.getTranslatableName()));
@@ -470,7 +473,8 @@ public class Mite extends Animal implements NeutralMob {
             pPlayer.sendSystemMessage(
                     MutableComponent.create(this.getEnthrall().getTranslatableName()).withStyle(ChatFormatting.YELLOW)
                             .append(MutableComponent.create(
-                                    new TranslatableContents("entity.mites.inspector_type_suffix")))
+                                    new TranslatableContents("entity.mites.inspector_type_suffix", null,
+                                            TranslatableContents.NO_ARGS)))
                             .append(MutableComponent.create(
                                     AppetiteInspector.fromValue(this.getAppetite()).getTranslatable()))
                             .append(MutableComponent.create(
@@ -490,11 +494,11 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public enum GreedInspector {
-        WORST(new TranslatableContents("entity.mites.greed_inspector.worst")),
-        BAD(new TranslatableContents("entity.mites.greed_inspector.bad")),
-        OK(new TranslatableContents("entity.mites.greed_inspector.ok")),
-        GOOD(new TranslatableContents("entity.mites.greed_inspector.good")),
-        BEST(new TranslatableContents("entity.mites.greed_inspector.best"));
+        WORST(new TranslatableContents("entity.mites.greed_inspector.worst", null, TranslatableContents.NO_ARGS)),
+        BAD(new TranslatableContents("entity.mites.greed_inspector.bad", null, TranslatableContents.NO_ARGS)),
+        OK(new TranslatableContents("entity.mites.greed_inspector.ok", null, TranslatableContents.NO_ARGS)),
+        GOOD(new TranslatableContents("entity.mites.greed_inspector.good", null, TranslatableContents.NO_ARGS)),
+        BEST(new TranslatableContents("entity.mites.greed_inspector.best", null, TranslatableContents.NO_ARGS));
         private final TranslatableContents translatable;
 
         GreedInspector(TranslatableContents pTranslatable) {
@@ -525,11 +529,11 @@ public class Mite extends Animal implements NeutralMob {
     }
 
     public enum AppetiteInspector {
-        WORST(new TranslatableContents("entity.mites.appetite_inspector.worst")),
-        BAD(new TranslatableContents("entity.mites.appetite_inspector.bad")),
-        OK(new TranslatableContents("entity.mites.appetite_inspector.ok")),
-        GOOD(new TranslatableContents("entity.mites.appetite_inspector.good")),
-        BEST(new TranslatableContents("entity.mites.appetite_inspector.best"));
+        WORST(new TranslatableContents("entity.mites.appetite_inspector.worst", null, TranslatableContents.NO_ARGS)),
+        BAD(new TranslatableContents("entity.mites.appetite_inspector.bad", null, TranslatableContents.NO_ARGS)),
+        OK(new TranslatableContents("entity.mites.appetite_inspector.ok", null, TranslatableContents.NO_ARGS)),
+        GOOD(new TranslatableContents("entity.mites.appetite_inspector.good", null, TranslatableContents.NO_ARGS)),
+        BEST(new TranslatableContents("entity.mites.appetite_inspector.best", null, TranslatableContents.NO_ARGS));
         private final TranslatableContents translatable;
 
         AppetiteInspector(TranslatableContents pTranslatable) {
@@ -563,111 +567,111 @@ public class Mite extends Animal implements NeutralMob {
         NONE("plain", Items.AIR, MitesCommonConfig.NONE_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.NONE_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.ROTTEN_FLESH).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.none.name")),
+                new TranslatableContents("entity.mites.enthrall.none.name", null, TranslatableContents.NO_ARGS)),
         STONE("stone", Items.COBBLESTONE, MitesCommonConfig.STONE_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.STONE_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.STONE).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.stone.name")),
+                new TranslatableContents("entity.mites.enthrall.stone.name", null, TranslatableContents.NO_ARGS)),
         FLINT("flint", Items.FLINT, MitesCommonConfig.FLINT_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.FLINT_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.FLINT).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.flint.name")),
+                new TranslatableContents("entity.mites.enthrall.flint.name", null, TranslatableContents.NO_ARGS)),
         DIRT("dirt", Items.DIRT, MitesCommonConfig.DIRT_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.DIRT_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.DIRT).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.dirt.name")),
+                new TranslatableContents("entity.mites.enthrall.dirt.name", null, TranslatableContents.NO_ARGS)),
         WOOD("wood", Items.OAK_LOG, MitesCommonConfig.WOOD_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.WOOD_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.OAK_LOG).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.wood.name")),
+                new TranslatableContents("entity.mites.enthrall.wood.name", null, TranslatableContents.NO_ARGS)),
         BONE("bone", Items.BONE_MEAL, MitesCommonConfig.BONE_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.BONE_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.COD, Items.SALMON, Items.TROPICAL_FISH).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.bone.name")),
+                new TranslatableContents("entity.mites.enthrall.bone.name", null, TranslatableContents.NO_ARGS)),
         CLAY("clay", Items.CLAY_BALL, MitesCommonConfig.CLAY_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.CLAY_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.CLAY).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.clay.name")),
+                new TranslatableContents("entity.mites.enthrall.clay.name", null, TranslatableContents.NO_ARGS)),
         CACTUS("cactus", Items.CACTUS, MitesCommonConfig.CACTUS_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.CACTUS_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.GREEN_DYE).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.cactus.name")),
+                new TranslatableContents("entity.mites.enthrall.cactus.name", null, TranslatableContents.NO_ARGS)),
         SNOW("snow", Items.SNOWBALL, MitesCommonConfig.SNOW_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.SNOW_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.SNOW_BLOCK).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.snow.name")),
+                new TranslatableContents("entity.mites.enthrall.snow.name", null, TranslatableContents.NO_ARGS)),
         ICE("ice", Items.ICE, MitesCommonConfig.ICE_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.ICE_ENTHRALL_CONVERSION.get(), new HashSet<>(),
                 Stream.of(Items.ICE).collect(Collectors.toCollection(HashSet::new)),
-                new TranslatableContents("entity.mites.enthrall.ice.name")),
+                new TranslatableContents("entity.mites.enthrall.ice.name", null, TranslatableContents.NO_ARGS)),
         GRAVEL("gravel", Items.GRAVEL, MitesCommonConfig.GRAVEL_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.GRAVEL_ENTHRALL_CONVERSION.get(),
                 Stream.of(STONE, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.gravel.name")),
+                new TranslatableContents("entity.mites.enthrall.gravel.name", null, TranslatableContents.NO_ARGS)),
         SAND("sand", Items.SAND, MitesCommonConfig.SAND_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.SAND_ENTHRALL_CONVERSION.get(),
                 Stream.of(GRAVEL, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.sand.name")),
+                new TranslatableContents("entity.mites.enthrall.sand.name", null, TranslatableContents.NO_ARGS)),
         COAL("coal", Items.COAL, MitesCommonConfig.COAL_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.COAL_ENTHRALL_CONVERSION.get(),
                 Stream.of(WOOD, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.coal.name")),
+                new TranslatableContents("entity.mites.enthrall.coal.name", null, TranslatableContents.NO_ARGS)),
         REDSTONE("redstone", Items.REDSTONE, MitesCommonConfig.REDSTONE_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.REDSTONE_ENTHRALL_CONVERSION.get(),
                 Stream.of(SAND, COAL).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.redstone.name")),
+                new TranslatableContents("entity.mites.enthrall.redstone.name", null, TranslatableContents.NO_ARGS)),
         SUGAR("sugar", Items.SUGAR, MitesCommonConfig.SUGAR_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.SUGAR_ENTHRALL_CONVERSION.get(),
                 Stream.of(REDSTONE, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.sugar.name")),
+                new TranslatableContents("entity.mites.enthrall.sugar.name", null, TranslatableContents.NO_ARGS)),
         GUNPOWDER("gunpowder", Items.GUNPOWDER, MitesCommonConfig.GUNPOWDER_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.GUNPOWDER_ENTHRALL_CONVERSION.get(),
                 Stream.of(REDSTONE, SUGAR).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.gunpowder.name")),
+                new TranslatableContents("entity.mites.enthrall.gunpowder.name", null, TranslatableContents.NO_ARGS)),
         SLIME("slime", Items.SLIME_BALL, MitesCommonConfig.SLIME_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.SLIME_ENTHRALL_CONVERSION.get(),
                 Stream.of(CACTUS, SUGAR).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.slime.name")),
+                new TranslatableContents("entity.mites.enthrall.slime.name", null, TranslatableContents.NO_ARGS)),
         STRING("string", Items.STRING, MitesCommonConfig.STRING_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.STRING_ENTHRALL_CONVERSION.get(),
                 Stream.of(SUGAR, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.string.name")),
+                new TranslatableContents("entity.mites.enthrall.string.name", null, TranslatableContents.NO_ARGS)),
         IRON("iron", Items.IRON_NUGGET, MitesCommonConfig.IRON_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.IRON_ENTHRALL_CONVERSION.get(),
                 Stream.of(GUNPOWDER, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.iron.name")),
+                new TranslatableContents("entity.mites.enthrall.iron.name", null, TranslatableContents.NO_ARGS)),
         LAPIS("lapis", Items.LAPIS_LAZULI, MitesCommonConfig.LAPIS_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.LAPIS_ENTHRALL_CONVERSION.get(),
                 Stream.of(ICE, REDSTONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.lapis.name")),
+                new TranslatableContents("entity.mites.enthrall.lapis.name", null, TranslatableContents.NO_ARGS)),
         QUARTZ("quartz", Items.QUARTZ, MitesCommonConfig.QUARTZ_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.QUARTZ_ENTHRALL_CONVERSION.get(),
                 Stream.of(LAPIS, BONE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.quartz.name")),
+                new TranslatableContents("entity.mites.enthrall.quartz.name", null, TranslatableContents.NO_ARGS)),
         BLAZE("blaze", Items.BLAZE_POWDER, MitesCommonConfig.BLAZE_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.BLAZE_ENTHRALL_CONVERSION.get(),
                 Stream.of(GUNPOWDER, FLINT).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.blaze.name")),
+                new TranslatableContents("entity.mites.enthrall.blaze.name", null, TranslatableContents.NO_ARGS)),
         OBSIDIAN("obsidian", Items.OBSIDIAN, MitesCommonConfig.OBSIDIAN_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.OBSIDIAN_ENTHRALL_CONVERSION.get(),
                 Stream.of(ICE, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.obsidian.name")),
+                new TranslatableContents("entity.mites.enthrall.obsidian.name", null, TranslatableContents.NO_ARGS)),
         GLASS("glass", Items.GLASS, MitesCommonConfig.GLASS_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.GLASS_ENTHRALL_CONVERSION.get(),
                 Stream.of(SAND, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.glass.name")),
+                new TranslatableContents("entity.mites.enthrall.glass.name", null, TranslatableContents.NO_ARGS)),
         GOLD("gold", Items.GOLD_NUGGET, MitesCommonConfig.GOLD_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.GOLD_ENTHRALL_CONVERSION.get(),
                 Stream.of(IRON, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.gold.name")),
+                new TranslatableContents("entity.mites.enthrall.gold.name", null, TranslatableContents.NO_ARGS)),
         DIAMOND("diamond", Items.DIAMOND, MitesCommonConfig.DIAMOND_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.DIAMOND_ENTHRALL_CONVERSION.get(),
                 Stream.of(COAL, BLAZE).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.diamond.name")),
+                new TranslatableContents("entity.mites.enthrall.diamond.name", null, TranslatableContents.NO_ARGS)),
         EMERALD("emerald", Items.EMERALD, MitesCommonConfig.EMERALD_ENTHRALL_BASE_DIGEST_TIME.get(),
                 MitesCommonConfig.EMERALD_ENTHRALL_CONVERSION.get(),
                 Stream.of(DIAMOND, SLIME).collect(Collectors.toCollection(HashSet::new)), new HashSet<>(),
-                new TranslatableContents("entity.mites.enthrall.emerald.name"));
+                new TranslatableContents("entity.mites.enthrall.emerald.name", null, TranslatableContents.NO_ARGS));
         private final Item item;
         private final String name;
         private final int baseDigestTime;
@@ -773,7 +777,7 @@ public class Mite extends Animal implements NeutralMob {
         @Override
         public boolean canContinueToUse() {
 
-            return !this.mite.isDigesting && this.isValidTarget(this.mite.level, this.blockPos);
+            return !this.mite.isDigesting && this.isValidTarget(this.mite.level(), this.blockPos);
         }
 
         @Override
@@ -797,7 +801,7 @@ public class Mite extends Animal implements NeutralMob {
                     for (int i1 = 0; i1 <= l; i1 = i1 > 0 ? -i1 : 1 - i1) {
                         for (int j1 = i1 < l && i1 > -l ? l : 0; j1 <= l; j1 = j1 > 0 ? -j1 : 1 - j1) {
                             mutableBlockPos.setWithOffset(blockpos, i1, k - 1, j1);
-                            if (this.mob.isWithinRestriction(mutableBlockPos) && this.isValidTarget(this.mob.level,
+                            if (this.mob.isWithinRestriction(mutableBlockPos) && this.isValidTarget(this.mob.level(),
                                     mutableBlockPos)) {
                                 this.blockPos = mutableBlockPos;
                                 return true;
