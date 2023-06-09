@@ -31,13 +31,3 @@ Even though you paid a premium price for your mite inspector (and had to assembl
 - take a closer look (sneak and use) to make predictions based on its anatomy
 
 We’re so glad to have you on the team. We haven’t heard from the others in a while, so it’s just you for now.
-
-## Mod Info
-
-The goal of this mod is to introduce mites — balanced, resource-generating mobs — into the game, simple tools to interact with them, and nothing else. The mod relies on as much vanilla as possible so it’s easy to update when Minecraft does. So, no complex machines or extractors and no changes to vanilla mechanics.
-
-If you’d rather skip exploration and go straight into exploiting the mechanics, a wiki is in progress and will come soon™.
-
-### Planned Features
-
-- [ ] Fabric version
