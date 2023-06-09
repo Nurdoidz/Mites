@@ -292,7 +292,7 @@ public class Mite extends Animal implements NeutralMob {
                 return InteractionResult.CONSUME;
             }
         } else if (this.isEnthrallItem(itemstack)) {
-            if (!this.level().isClientSide && !this.isBaby()) {
+            if (!this.level().isClientSide) {
                 Enthrall convertedEnthrall = Enthrall.fromItem(itemstack);
                 Enthrall thisEnthrall = this.getEnthrall();
                 if (thisEnthrall != convertedEnthrall && convertedEnthrall.isConvertibleByItem()) {
@@ -326,10 +326,7 @@ public class Mite extends Animal implements NeutralMob {
                 }
                 return InteractionResult.SUCCESS;
             }
-
-            if (this.level().isClientSide) {
-                return InteractionResult.CONSUME;
-            }
+            return InteractionResult.CONSUME;
         } else if (this.isInspectorItem(itemstack)) {
             if (!this.level().isClientSide) {
                 this.handleInspectorTool(pPlayer, (InspectorTool) itemstack.getItem());
