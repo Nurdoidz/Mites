@@ -273,14 +273,16 @@ public class Mite extends Animal implements NeutralMob {
         if (this.isFood(itemstack)) {
             int i = this.getAge();
             if (!this.level.isClientSide && i == 0 && this.canFallInLove()) {
-                this.usePlayerItem(pPlayer, pHand, itemstack);
+                ItemStack usedItem = itemstack.finishUsingItem(this.level, pPlayer);
+                pPlayer.setItemInHand(pHand, usedItem);
                 this.tryToHealFromEating();
                 this.setInLove(pPlayer);
                 return InteractionResult.SUCCESS;
             }
 
             if (this.isBaby()) {
-                this.usePlayerItem(pPlayer, pHand, itemstack);
+                ItemStack usedItem = itemstack.finishUsingItem(this.level, pPlayer);
+                pPlayer.setItemInHand(pHand, usedItem);
                 this.tryToHealFromEating();
                 this.ageUp(getSpeedUpSecondsWhenFeeding(-i), true);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
