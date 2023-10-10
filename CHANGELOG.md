@@ -1,16 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## 1.0.2 (2023-10-09)
 
-### Added
+### Fixed
 
-- Changelog
+- Mites not having a proper name
 
-### Removed
-
-- Mod Info section from README
-
-## [1.0.1] // 2023-06-08
+## 1.0.1 (2023-06-08)
 
 ### Fixed
 
@@ -20,6 +16,6 @@
 
 - Baby mites can now convert
 
-## [1.0.0] // 2023-06-08
+## 1.0.0 (2023-06-08)
 
 - Public release
