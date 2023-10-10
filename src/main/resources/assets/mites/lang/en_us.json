@@ -1,4 +1,5 @@
 {
+  "entity.mites.mite": "Mite",
   "item.mites.mite_spawn_egg": "Spawn Mite",
   "item.mites.mite_inspector": "Mite Inspector",
   "entity.mites.greed_inspector.worst": "Plump and sluggish.",
