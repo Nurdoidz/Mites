@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3 (2023-10-13)
+
+### Fixed
+
+- Bad grammar in config file
+
 ## 1.0.2 (2023-10-09)
 
 ### Fixed
