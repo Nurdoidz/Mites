@@ -312,7 +312,9 @@ public class Mite extends Animal implements NeutralMob {
                     this.usePlayerItem(pPlayer, pHand, itemstack);
                     this.tryToHealFromEating();
                     this.playSound(itemstack.getEatingSound());
-                    enthrallCandidates.put(Enthrall.NONE, 0.);
+                    if (convertedEnthrall != Enthrall.ICE) {
+                        enthrallCandidates.put(Enthrall.NONE, 0.);
+                    }
                     Random die = new Random();
                     for (Enthrall enthrall : enthrallCandidates.keySet()) {
                         int roll = die.nextInt(101);
