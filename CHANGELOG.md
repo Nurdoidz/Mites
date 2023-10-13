@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Snow mite reverting to plain when fed ice
 - Bad grammar in config file
 
 ## 1.0.2 (2023-10-09)
