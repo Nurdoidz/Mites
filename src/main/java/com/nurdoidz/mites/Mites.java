@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import com.nurdoidz.mites.config.MitesCommonConfig;
 import com.nurdoidz.mites.registry.MitesEntities;
 import com.nurdoidz.mites.registry.MitesItems;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -40,6 +39,7 @@ public class Mites {
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+
         }
     }
 
