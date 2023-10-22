@@ -122,7 +122,7 @@ public class MitesCommonConfig {
                 .define("String Mite base digest time", 800);
         IRON_ENTHRALL_BASE_DIGEST_TIME = BUILDER
                 .comment("Base time in ticks it takes an Iron Mite to try creating its resource.")
-                .define("Iron Mite base digest time", 900);
+                .define("Iron Mite base digest time", 75);
         LAPIS_ENTHRALL_BASE_DIGEST_TIME = BUILDER
                 .comment("Base time in ticks it takes a Lapis Mite to try creating its resource.")
                 .define("Lapis Mite base digest time", 1000);
@@ -140,7 +140,7 @@ public class MitesCommonConfig {
                 .define("Glass Mite base digest time", 800);
         GOLD_ENTHRALL_BASE_DIGEST_TIME = BUILDER
                 .comment("Base time in ticks it takes a Gold Mite to try creating its resource.")
-                .define("Gold Mite base digest time", 1800);
+                .define("Gold Mite base digest time", 100);
         DIAMOND_ENTHRALL_BASE_DIGEST_TIME = BUILDER
                 .comment("Base time in ticks it takes a Diamond Mite to try creating its resource.")
                 .define("Diamond Mite base digest time", 2400);
