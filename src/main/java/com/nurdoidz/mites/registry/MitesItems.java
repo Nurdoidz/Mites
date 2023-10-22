@@ -1,7 +1,7 @@
 package com.nurdoidz.mites.registry;
 
 import com.nurdoidz.mites.Mites;
-import com.nurdoidz.mites.item.InspectorTool;
+import com.nurdoidz.mites.item.MiteInspector;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
@@ -21,7 +21,7 @@ public class MitesItems {
                             .tab(CreativeModeTab.TAB_MISC)
                             .stacksTo(16)));
     public static final RegistryObject<Item> MITE_INSPECTOR = ITEMS.register("mite_inspector",
-            () -> new InspectorTool(new Item.Properties()
+            () -> new MiteInspector(new Item.Properties()
                     .tab(CreativeModeTab.TAB_TOOLS)
                     .stacksTo(1)));
 
