@@ -1,7 +1,7 @@
 package com.nurdoidz.mites.entity;
 
 import com.nurdoidz.mites.config.MitesCommonConfig;
-import com.nurdoidz.mites.item.InspectorTool;
+import com.nurdoidz.mites.item.MiteInspector;
 import com.nurdoidz.mites.registry.MitesEntities;
 import com.nurdoidz.mites.registry.MitesItems;
 import com.nurdoidz.mites.util.Formulas;
@@ -331,7 +331,7 @@ public class Mite extends Animal implements NeutralMob {
             return InteractionResult.CONSUME;
         } else if (this.isInspectorItem(itemstack)) {
             if (!this.level().isClientSide) {
-                this.handleInspectorTool(pPlayer, (InspectorTool) itemstack.getItem());
+                this.handleInspectorTool(pPlayer, (MiteInspector) itemstack.getItem());
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;
@@ -438,7 +438,7 @@ public class Mite extends Animal implements NeutralMob {
         return MobType.ARTHROPOD;
     }
 
-    private void handleInspectorTool(Player pPlayer, InspectorTool pInspector) {
+    private void handleInspectorTool(Player pPlayer, MiteInspector pInspector) {
 
         if (this.level().isClientSide) {
             return;

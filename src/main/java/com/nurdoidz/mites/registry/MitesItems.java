@@ -1,7 +1,7 @@
 package com.nurdoidz.mites.registry;
 
 import com.nurdoidz.mites.Mites;
-import com.nurdoidz.mites.item.InspectorTool;
+import com.nurdoidz.mites.item.MiteInspector;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -19,7 +19,7 @@ public class MitesItems {
                     new Properties()
                             .stacksTo(16)));
     public static final RegistryObject<Item> MITE_INSPECTOR = ITEMS.register("mite_inspector",
-            () -> new InspectorTool(new Item.Properties()
+            () -> new MiteInspector(new Item.Properties()
                     .stacksTo(1)));
 
     public static void register(IEventBus pEventBus) {

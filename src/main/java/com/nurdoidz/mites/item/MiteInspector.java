@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.world.item.Item;
 
-public class InspectorTool extends Item {
+public class MiteInspector extends Item {
 
     private final Set<Enthrall> offspring = new HashSet<>();
     private Enthrall father = null;
     private Enthrall mother = null;
 
-    public InspectorTool(Properties pProperties) {
+    public MiteInspector(Properties pProperties) {
 
         super(pProperties);
     }

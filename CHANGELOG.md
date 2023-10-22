@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4 (2023-10-21)
+
+### Changed
+
+- Balancing in config for iron and gold mites; now they produce ~9x resources to account for nuggets
+
 ## 1.0.3 (2023-10-13)
 
 ### Fixed
