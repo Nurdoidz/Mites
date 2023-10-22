@@ -1,3 +1,5 @@
+[Fabric version coming soon!](https://github.com/Nurdoidz/Mites-Fabric)
+
 # Mites
 
 ![](https://raw.githubusercontent.com/Nurdoidz/Mites/1.20/doc/MiteInNature.png)
