@@ -484,14 +484,22 @@ public class Mite extends Animal implements NeutralMob {
 
     }
 
-    private void tryToEat() {
+    private void tryToEat(BlockPos blockPos) {
 
         if (!this.isDigesting) {
             this.tryToHealFromEating();
             this.playSound(Blocks.HONEY_BLOCK.asItem().getEatingSound());
+            if (MitesCommonConfig.MITE_CONSUMES_HONEY_BLOCK.get()) {
+                float base = MitesCommonConfig.BASE_PERCENT_CONSUMES_HONEY_BLOCK.get();
+                float scale = getEnthrall().conversion
+                        / (float) MitesCommonConfig.NONE_ENTHRALL_CONVERSION.get();
+                int roll = this.random.nextInt(101);
+                if (base >= 1 || roll <= (base * 100 * scale)) {
+                    this.level().destroyBlock(blockPos, false);
+                }
+            }
         }
         this.isDigesting = true;
-
     }
 
     public enum GreedInspector {
@@ -786,7 +794,7 @@ public class Mite extends Animal implements NeutralMob {
 
             super.tick();
             if (this.isNextToHoney()) {
-                this.mite.tryToEat();
+                this.mite.tryToEat(this.blockPos);
             }
         }
 
