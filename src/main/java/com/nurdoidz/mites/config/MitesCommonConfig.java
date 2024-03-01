@@ -7,6 +7,9 @@ public class MitesCommonConfig {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
 
+    public static final ForgeConfigSpec.ConfigValue<Boolean> MITE_CONSUMES_HONEY_BLOCK;
+    public static final ForgeConfigSpec.ConfigValue<Float> BASE_PERCENT_CONSUMES_HONEY_BLOCK;
+
     public static final ForgeConfigSpec.ConfigValue<Integer> NONE_ENTHRALL_BASE_DIGEST_TIME;
     public static final ForgeConfigSpec.ConfigValue<Integer> STONE_ENTHRALL_BASE_DIGEST_TIME;
     public static final ForgeConfigSpec.ConfigValue<Integer> FLINT_ENTHRALL_BASE_DIGEST_TIME;
@@ -64,6 +67,16 @@ public class MitesCommonConfig {
     public static final ForgeConfigSpec.ConfigValue<Integer> EMERALD_ENTHRALL_CONVERSION;
 
     static {
+        BUILDER.push("Mite behavior");
+
+        MITE_CONSUMES_HONEY_BLOCK = BUILDER
+                .comment("Whether mites sometimes consume honey blocks when eating them.")
+                .define("Mites consume honey blocks", true);
+        BASE_PERCENT_CONSUMES_HONEY_BLOCK = BUILDER
+                .comment("Base percent change any mite will consume a honey block. Actual percentages are scaled logarithmically based on conversion. Set to 1 to always consume.")
+                .define("Base percent mite consumes honey block", 0.03f);
+
+        BUILDER.pop();
         BUILDER.push("Mite Enthralls base digest time");
 
         NONE_ENTHRALL_BASE_DIGEST_TIME = BUILDER
@@ -191,15 +204,13 @@ public class MitesCommonConfig {
                 .comment("Weight factor for Coal Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Coal Mite conversion factor", 17);
         REDSTONE_ENTHRALL_CONVERSION = BUILDER
-                .comment(
-                        "Weight factor for Redstone Mite. Used when converting and breeding. Higher values mean rarer.")
+                .comment("Weight factor for Redstone Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Redstone Mite conversion factor", 17);
         SUGAR_ENTHRALL_CONVERSION = BUILDER
                 .comment("Weight factor for Sugar Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Sugar Mite conversion factor", 16);
         GUNPOWDER_ENTHRALL_CONVERSION = BUILDER
-                .comment(
-                        "Weight factor for Gunpowder Mite. Used when converting and breeding. Higher values mean rarer.")
+                .comment("Weight factor for Gunpowder Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Gunpowder Mite conversion factor", 17);
         SLIME_ENTHRALL_CONVERSION = BUILDER
                 .comment("Weight factor for Slime Mite. Used when converting and breeding. Higher values mean rarer.")
@@ -220,8 +231,7 @@ public class MitesCommonConfig {
                 .comment("Weight factor for Blaze Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Blaze Mite conversion factor", 20);
         OBSIDIAN_ENTHRALL_CONVERSION = BUILDER
-                .comment(
-                        "Weight factor for Obsidian Mite. Used when converting and breeding. Higher values mean rarer.")
+                .comment("Weight factor for Obsidian Mite. Used when converting and breeding. Higher values mean rarer.")
                 .define("Obsidian Mite conversion factor", 19);
         GLASS_ENTHRALL_CONVERSION = BUILDER
                 .comment("Weight factor for Glass Mite. Used when converting and breeding. Higher values mean rarer.")
