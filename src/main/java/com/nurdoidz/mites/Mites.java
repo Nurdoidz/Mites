@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -39,6 +40,8 @@ public class Mites {
                         output.accept(
                                 MitesItems.MITE_INSPECTOR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
                         output.accept(MitesItems.MITE_SPAWN_EGG.get());
+                        output.accept(Items.HONEY_BOTTLE);
+                        output.accept(Items.HONEY_BLOCK);
                     }).build());
     private static final Logger LOGGER = LogUtils.getLogger();
 
