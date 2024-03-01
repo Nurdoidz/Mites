@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 (2024-02-29)
+
+### Changed
+
+- Mites now sometimes consume honey blocks (configurable).
+
 ## 1.0.4 (2023-10-21)
 
 ### Changed
